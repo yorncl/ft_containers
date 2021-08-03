@@ -1,0 +1,7 @@
+__pycache__
+test/pages
+test/inc
+test/test
+*.o
+*.out
+*.test

@@ -10,6 +10,12 @@ NAME=ft_containers_tester
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )" 
 cd $SCRIPT_DIR # Doing this to avoid having to append the path to each source file
 
+
+RED="\033[0;31m"
+GREEN="\033[0;32m"
+NC="\033[0m"
+
+
 if [[ $? != 0 ]]
 then
     echo "Aborting script"
@@ -40,6 +46,7 @@ function compile_tests
 function launch_tests
 {
     echo "Launching tests"
+    printf "$RED BONJOUR A TOUS $NC C'est le moment de faire qqchose de ta vie boloss\n"
     ./$NAME
 }
 
