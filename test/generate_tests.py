@@ -14,8 +14,8 @@ def createTests():
                  if len(example) == 1:
                     code = example[0].find(class_="source").find("code").text
                     with open(config.testsDir + '/' + c + '/src/' + file.name.replace(".html", ".cpp"), "w") as testfile:
-                        code = code.replace("<vector>", "\"vector\"")
-                        code = code.replace("std::vector", "NAMESPACE::vector")
+                        code = code.replace("<" + c +">", "HEADER_FILE")
+                        code = code.replace("std::" + c, "NAMESPACE::" + c)
                         testfile.write(code)
                         print("Generated code for " + testfile.name)
 

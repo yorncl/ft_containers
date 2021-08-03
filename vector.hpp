@@ -537,6 +537,6 @@ namespace ft
 	{
 		x.swap(y);
 	}
-}
+} // namespace ft
 
 #endif //VECTOR_HPP
