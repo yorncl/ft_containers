@@ -31,9 +31,11 @@ namespace ft
 		_VectorIterator(const _VectorIterator<T> &it){_el = it._el;}
 		_VectorIterator(const _ConstVectorIterator<T> &it){_el = const_cast<pointer>(it._el);}
 		_Self operator++(int) {_Self tmp = *this; _el++ ; return tmp;}
-		_Self& operator--() {_el--; return this;}
-		_Self& operator++() {_el++; return this;}
 		_Self operator--(int) {_Self tmp = *this; _el--; return tmp;}
+		_Self& operator++() {_el++; return *this;}
+		_Self& operator--() {_el--; return *this;}
+		_Self& operator+(int a) {_el += a; return *this;}
+		_Self& operator-(int a) {_el -= a; return *this;}
 		bool operator==(_Self other) const {return _el == other._el;}
 		bool operator!=(_Self other) const {return _el != other._el;}
 		reference operator*() const {return *_el;}
@@ -57,9 +59,11 @@ namespace ft
 		_ConstVectorIterator(const _VectorIterator<T> &it){_el = it._el;}
 		_ConstVectorIterator(const _ConstVectorIterator<T> &it){_el = it._el;}
 		_Self operator++(int) {_Self tmp = *this; _el++ ; return tmp;}
-		_Self& operator--() {_el--; return this;}
-		_Self& operator++() {_el++; return this;}
 		_Self operator--(int) {_Self tmp = *this; _el--; return tmp;}
+		_Self& operator++() {_el++; return *this;}
+		_Self& operator--() {_el--; return *this;}
+		_Self& operator+(int a) {_el += a; return *this;}
+		_Self& operator-(int a) {_el -= a; return *this;}
 		bool operator==(_Self other) const {return _el == other._el;}
 		bool operator!=(_Self other) const {return _el != other._el;}
 		reference operator*() const {return *_el;}
@@ -383,7 +387,7 @@ namespace ft
 				reallocateBlock(_storage);
 			}
 			_storage.size++;
-			std::cout << &_storage.data  << " " << _storage.size - 1 << std::endl;
+			/* std::cout << &_storage.data  << " " << _storage.size - 1 << std::endl; */
 			_storage.data[_storage.size - 1] = val;
 		}
 
@@ -419,13 +423,49 @@ namespace ft
 		iterator erase (iterator position)
 		{
 			(void) position;
-			return iterator(_storage.data + 1);
+      _Block b = initBlock(_storage.size - 1);
+      iterator it = begin();
+      size_t i = 0;
+      size_t pos = 0;
+      while (it != end())
+      {
+        if (it != position)
+        {
+          b.data[i] = *it; 
+          i++;
+        }
+        else
+          pos = i;
+        it++;
+      }
+      destroyBlock(_storage);
+      _storage = b;
+			return iterator(_storage.data + pos + 1);
 		}
+
 		iterator erase (iterator first, iterator last)
 		{
-			(void) first;
-			(void) last;
-			return iterator(_storage.data + 1);
+      size_t size = last._el - first._el;
+      _Block b = initBlock(_storage.size - size);
+      size_t i = 0;
+      iterator it = begin();
+      iterator pos = it;
+      while (it != first)
+      {
+        b.data[i] = *it;
+        i++;
+      }
+      pos = it + 1;
+      it = last;
+      while(it != end())
+      {
+        b.data[i] = *it;
+        i++;
+        it++;
+      }
+      destroyBlock(_storage);
+      _storage = b;
+			return pos; 
 		}
 
 		// swap
