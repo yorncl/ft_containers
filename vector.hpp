@@ -38,6 +38,10 @@ namespace ft
 		_Self& operator-(int a) {_el -= a; return *this;}
 		bool operator==(_Self other) const {return _el == other._el;}
 		bool operator!=(_Self other) const {return _el != other._el;}
+		bool operator<(_Self other) const {return _el < other._el;}
+		bool operator>(_Self other) const {return _el > other._el;}
+		bool operator<=(_Self other) const {return _el <= other._el;}
+		bool operator>=(_Self other) const {return _el >= other._el;}
 		reference operator*() const {return *_el;}
 		~_VectorIterator(){}
 	};
@@ -66,6 +70,10 @@ namespace ft
 		_Self& operator-(int a) {_el -= a; return *this;}
 		bool operator==(_Self other) const {return _el == other._el;}
 		bool operator!=(_Self other) const {return _el != other._el;}
+		bool operator<(_Self other) const {return _el < other._el;}
+		bool operator>(_Self other) const {return _el > other._el;}
+		bool operator<=(_Self other) const {return _el <= other._el;}
+		bool operator>=(_Self other) const {return _el >= other._el;}
 		reference operator*() const {return *_el;}
 		~_ConstVectorIterator(){}
 	};
@@ -401,19 +409,31 @@ namespace ft
 		// insert
 		iterator insert (iterator position, const value_type& val)
 		{
-			(void) position;
-			(void) val;
-			return iterator(_storage.data);
+      std::cout << "insert called" << std::endl;
+      size_t offset = position._el - _storage.data;
+      insert(position, 1, val);
+      return iterator(&_storage.data[offset]);
 		}
 		void insert (iterator position, size_type n, const value_type& val)
 		{
-			(void) position;
-			(void) n;
-			(void) val;
+      std::cout << "inner insert called" << std::endl;
+      size_t offset = position._el - _storage.data + n;
+      while (_storage.size + n >= _storage.capacity)
+        reallocateBlock(_storage);
+       _storage.size += n; 
+      size_t i = offset;
+       while (i < offset + n)
+      {
+        std::cout << "should be called" << std::endl;
+        _storage.data[i + n] = _storage.data[i];
+        _storage.data[i] = val;
+        i++;
+      }
 		}
 		template <class InputIterator>
 		void insert (iterator position, InputIterator first, InputIterator last)
 		{
+      std::cout << "ptn c'etait sur" << std::endl;
 			(void) position;
 			(void) first;
 			(void) last;

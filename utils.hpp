@@ -9,17 +9,79 @@
 namespace ft
 {
 	template<bool B, class T = void>
-	struct enable_oof {};
+	struct enable_if {};
 
 	template<class T>
-	struct enable_oof<true, T> { typedef T type; };
+	struct enable_if<true, T> { typedef T type; };
+	#define REQUIRE_ITER(T) typename ft::enable_iff<!std::numeric_limits<T>::is_integer, T>::type * = NULL
+  
 
-	#define REQUIRE_ITER(T) typename ft::enable_oof<!std::numeric_limits<T>::is_integer, T>::type * = NULL
+  template<class T, T v>
+  struct integral_constant {
+      static const T value = v;
+      typedef T value_type;
+      typedef integral_constant type;
+      /* const operator value_type() const noexcept { return value; } */
+      /* const value_type operator()() const noexcept { return value; } //since c++14 */
+  };
+
+  typedef ft::integral_constant<bool, true> true_type;
+  typedef ft::integral_constant<bool, false> false_type;
+
+  template<class T, class U> struct is_same : ft::false_type {};
+  template<class T> struct is_same<T, T> : ft::true_type {};
+
+  template<class T> struct is_integral_base : ft::false_type {}; 
+  template<> struct is_integral_base<bool> : ft::true_type {}; 
+  template<> struct is_integral_base<int> : ft::true_type {}; 
+  template<> struct is_integral_base<long> : ft::true_type {}; 
+  template<> struct is_integral_base<short> : ft::true_type {}; 
+  template<> struct is_integral_base<long long> : ft::true_type {}; 
+  template<> struct is_integral_base<char> : ft::true_type {}; 
+  /* template<> struct is_integral_base<char16_t> : ft::true_type {};  */
+  /* template<> struct is_integral_base<char32_t> : ft::true_type {};  */
+  template<> struct is_integral_base<wchar_t> : ft::true_type {}; 
+
+  template<class T> struct is_integral : ft::is_integral_base<T> {};
+
+
+
+  template<class T1, class T2>
+  struct pair
+  {
+    pair(T1 f, T2 s) : first(f), second(s)
+    {
+    }
+    struct pair<T1, T2>& operator=(struct pair<T1, T2> p)
+    {
+      first = p.first;
+      second = p.second;
+      return *this;
+    }
+    T1 first;
+    T2 second;
+    typedef T1 first_type;
+    typedef T2 second_type;
+  };
+
+  template <class T1, class T2>
+  struct pair<T1, T2> make_pair(T1 first, T2 second)
+  {
+    struct pair<T1, T2> pair(first, second);
+    return pair;
+  }
+
+
+  template<class T1, class T2>
+  bool operator==(struct pair<T1, T2> p1, struct pair<T1, T2> p2)
+  {
+    return p1.first == p2.first && p1.second == p2.second;
+  }
 
 	template<typename T>
 	bool isEqual(T& a, T&b) {return a == b;};
 	template<typename T>
 	bool isSup(T& a, T&b) {return a <= b;};
-}
+} // namespace ft
 
 #endif // UTILS_HPP

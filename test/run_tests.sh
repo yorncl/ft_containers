@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 CC="clang++"
-CLFLAGS="-g -Wall -Wextra -Werror -std=c++98"
+CLFLAGS=" -Wall -Wextra -Werror -std=c++98 -g -fsanitize=address "
 CONTAINERS_DIR="../"
 
 # https://stackoverflow.com/questions/59895/how-can-i-get-the-source-directory-of-a-bash-script-from-within-the-script-itsel
@@ -46,10 +46,13 @@ function success
   printf "$GREEN%-30s Success!$NC\n" $1
 }
 
+function diff_failed
+{
+  printf "$RED%-30s diff failed$NC\n" $1
+}
+
 function launch_tests
 {
-
-
     echo "Launching tests"
     for dir in tests/*
     do
@@ -64,17 +67,25 @@ function launch_tests
         out=normal.out
         ft_out=ft.out
         testname=$(basename $file | cut -f 1 -d '.')
-        $CC $CLFLAGS $file -o $out -D NAMESPACE=std
-        $CC $CLFLAGS -I $CONTAINERS_DIR $file -o $ft_out -D NAMESPACE=ft 2> $dir/compilation/$testname
+        $CC $CLFLAGS $file -o $out -D NAMESPACE=std -D HEADER_FILE="<$(basename $dir)>"
+        $CC $CLFLAGS -I $CONTAINERS_DIR $file -o $ft_out -D NAMESPACE=ft 2> $dir/compilation/$testname -D HEADER_FILE="\"$(basename $dir).hpp\""
+
         if [[ $? != 0 ]]
         then
           compilation_fail $testname
         else
-          echo $file 
-          echo $testname $out $ft_out
-          success $testname
+          ./$out > $dir/out/$testname.out
+          ./$ft_out > $dir/ft_out/$testname.out
+          DIFF=$(diff $dir/out/$testname.out $dir/ft_out/$testname.out)
+          if [[ $DIFF != "" ]]
+          then
+              diff -y $dir/out/$testname.out $dir/ft_out/$testname.out > $dir/diff/$testname.diff
+              diff_failed $testname
+          else
+              success $testname
+          fi
         fi
-       rm $out $ft_out 
+       rm -f $out $ft_out 
       done
     done
     #Deleting empty files
@@ -82,17 +93,28 @@ function launch_tests
 
 function single_test
 {
+  testname=$2
+  echo "Running test for $2"
   file=tests/$1/src/$2.cpp
   out=normal.out
   ft_out=ft.out
+  dir=tests/$1
   $CC $CLFLAGS $file -o $out -D NAMESPACE=std -D HEADER_FILE="<$1>"
-  sleep 2
   $CC $CLFLAGS -I $CONTAINERS_DIR $file -o $ft_out -D NAMESPACE=ft -D HEADER_FILE="\"$1.hpp\""
   if [[ $? != 0 ]]
   then
-    exit 1
+    compilation_fail $testname 
   else
-    success
+    ./$out > $dir/out/$testname.out
+    ./$ft_out > $dir/ft_out/$testname.out 
+    DIFF=$(diff $dir/out/$testname.out $dir/ft_out/$testname.out)
+    if [[ $DIFF != "" ]]
+    then
+        diff -y $dir/out/$testname.out $dir/ft_out/$testname.out
+        diff_failed $testname
+    else
+        success $testname
+    fi
   fi
 }
 
