@@ -3,12 +3,13 @@
 #include <memory>
 #include <limits>
 #include <exception>
+#include <stdexcept>
 
 #include "utils.hpp"
 #include "reverse_iterator.hpp"
 
 #define SCALING_FACTOR 2
-#define INIT_CAPACITY 2
+#define INIT_CAPACITY 0
 
 namespace ft
 {
@@ -23,6 +24,7 @@ namespace ft
 		typedef T					value_type;
 		typedef T*					pointer;
 		typedef T&					reference;
+    typedef std::random_access_iterator_tag iterator_category;
 
 		pointer _el;
 		
@@ -34,8 +36,9 @@ namespace ft
 		_Self operator--(int) {_Self tmp = *this; _el--; return tmp;}
 		_Self& operator++() {_el++; return *this;}
 		_Self& operator--() {_el--; return *this;}
-		_Self& operator+(int a) {_el += a; return *this;}
-		_Self& operator-(int a) {_el -= a; return *this;}
+		_Self operator+(int a) { return _Self(_el + a); }
+		_Self operator-(int a) { return _Self(_el - a); }
+		difference_type operator-(_Self a) { return _el - a._el; }
 		bool operator==(_Self other) const {return _el == other._el;}
 		bool operator!=(_Self other) const {return _el != other._el;}
 		bool operator<(_Self other) const {return _el < other._el;}
@@ -55,6 +58,7 @@ namespace ft
 		typedef const T					value_type;
 		typedef const T*					pointer;
 		typedef const T&					reference;
+    typedef std::random_access_iterator_tag iterator_category;
 
 		pointer _el;
 		
@@ -66,8 +70,9 @@ namespace ft
 		_Self operator--(int) {_Self tmp = *this; _el--; return tmp;}
 		_Self& operator++() {_el++; return *this;}
 		_Self& operator--() {_el--; return *this;}
-		_Self& operator+(int a) {_el += a; return *this;}
-		_Self& operator-(int a) {_el -= a; return *this;}
+		_Self operator+(int a) {return _Self(_el + a);}
+		_Self operator-(int a) {return _Self(_el - a);}
+		difference_type operator-(_Self a) { return _el - a._el; }
 		bool operator==(_Self other) const {return _el == other._el;}
 		bool operator!=(_Self other) const {return _el != other._el;}
 		bool operator<(_Self other) const {return _el < other._el;}
@@ -149,7 +154,10 @@ namespace ft
 
 		void reallocateBlock(_Block& b)
 		{
-			reallocateBlock(b, b.capacity * SCALING_FACTOR);
+      if (b.capacity == 0)
+			  reallocateBlock(b, 1);
+      else
+			  reallocateBlock(b, b.capacity * SCALING_FACTOR);
 		}
 
 		void reallocateBlock(_Block& src, size_t capacity)
@@ -317,7 +325,11 @@ namespace ft
 		// reserve
 		void reserve (size_type n)
 		{
-			(void) n;
+      if (_storage.capacity > n)
+        return ;
+      if (n > max_size())
+        throw std::length_error("n larger than vector::max_size()");
+      reallocateBlock(_storage, n);
 		}
 
 		// operator[]
@@ -409,34 +421,65 @@ namespace ft
 		// insert
 		iterator insert (iterator position, const value_type& val)
 		{
-      std::cout << "insert called" << std::endl;
       size_t offset = position._el - _storage.data;
       insert(position, 1, val);
       return iterator(&_storage.data[offset]);
 		}
 		void insert (iterator position, size_type n, const value_type& val)
 		{
-      std::cout << "inner insert called" << std::endl;
-      size_t offset = position._el - _storage.data + n;
-      while (_storage.size + n >= _storage.capacity)
-        reallocateBlock(_storage);
-       _storage.size += n; 
-      size_t i = offset;
-       while (i < offset + n)
+      size_t offset = position._el - _storage.data;
+      _Block newBlock = initBlock(_storage.size + n);
+
+      size_t i = 0;
+      size_t j = 0;
+      while(offset--)
       {
-        std::cout << "should be called" << std::endl;
-        _storage.data[i + n] = _storage.data[i];
-        _storage.data[i] = val;
+        newBlock.data[i] = _storage.data[j];
+        i++;
+        j++;
+      }
+      while (n--)
+      {
+        newBlock.data[i] = val;
         i++;
       }
+      while(j < _storage.size)
+      {
+        newBlock.data[i] = _storage.data[j];
+        i++;
+        j++;
+      }
+      destroyBlock(_storage);
+      _storage = newBlock;
 		}
 		template <class InputIterator>
-		void insert (iterator position, InputIterator first, InputIterator last)
+		void insert (iterator position, InputIterator first, InputIterator last, REQUIRE_ITER(InputIterator))
 		{
-      std::cout << "ptn c'etait sur" << std::endl;
-			(void) position;
-			(void) first;
-			(void) last;
+      size_t offset = position._el - _storage.data;
+      _Block newBlock = initBlock(_storage.size + std::distance(first, last));
+
+      size_t i = 0;
+      size_t j = 0;
+      while(offset--)
+      {
+        newBlock.data[i] = _storage.data[j];
+        i++;
+        j++;
+      }
+      while (first != last)
+      {
+        newBlock.data[i] = *first;
+        i++;
+        first++;
+      }
+      while(j < _storage.size)
+      {
+        newBlock.data[i] = _storage.data[j];
+        i++;
+        j++;
+      }
+      destroyBlock(_storage);
+      _storage = newBlock;
 		}
 
 		// erase
@@ -539,58 +582,22 @@ namespace ft
 	template <class T, class Alloc>
 	bool operator<(const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
 	{
-		typename vector<T,Alloc>::iterator it1 = lhs.begin();
-		typename vector<T,Alloc>::iterator it2 = rhs.begin();
-		while (it1 != lhs.end() && it2 != rhs.end())
-		{
-			if (*it1 < *it2)
-				return true;
-			it1++;
-			it2++;
-		}
-		return !(it1 == lhs.end() && it2 == rhs.end());
+    return ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
 	}
 	template <class T, class Alloc>
 	bool operator<= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
 	{
-		typename vector<T,Alloc>::iterator it1 = lhs.begin();
-		typename vector<T,Alloc>::iterator it2 = rhs.begin();
-		while (it1 != lhs.end() && it2 != rhs.end())
-		{
-			if (*it1 > *it2)
-				return false;
-			it1++;
-			it2++;
-		}
-		return (it1 == lhs.end() && it2 == rhs.end());
+    return rhs > lhs;
 	}
 	template <class T, class Alloc>
-	bool operator>  (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
+	bool operator> (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
 	{
-		typename vector<T,Alloc>::iterator it1 = lhs.begin();
-		typename vector<T,Alloc>::iterator it2 = rhs.begin();
-		while (it1 != lhs.end() && it2 != rhs.end())
-		{
-			if (*it1 <= *it2)
-				return false;
-			it1++;
-			it2++;
-		}
-		return (it1 != lhs.end() && it2 == rhs.end());;
+    return !(lhs < rhs);
 	}
 	template <class T, class Alloc>
 	bool operator>= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
 	{
-		typename vector<T,Alloc>::iterator it1 = lhs.begin();
-		typename vector<T,Alloc>::iterator it2 = rhs.begin();
-		while (it1 != lhs.end() && it2 != rhs.end())
-		{
-			if (*it1 < *it2)
-				return false;
-			it1++;
-			it2++;
-		}
-		return (it2 == rhs.end());
+    return rhs < lhs;
 	}
 	template <class T, class Alloc>
 	void swap (vector<T,Alloc>& x, vector<T,Alloc>& y)

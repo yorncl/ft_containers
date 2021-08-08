@@ -57,6 +57,10 @@ function launch_tests
     for dir in tests/*
     do
       echo $dir
+      if [[ $dir == "tests/others" ]]
+      then
+        continue
+      fi
       for file in $dir/src/*
       do
         # Creating dirs to store output

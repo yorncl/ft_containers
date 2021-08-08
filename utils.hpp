@@ -13,7 +13,6 @@ namespace ft
 
 	template<class T>
 	struct enable_if<true, T> { typedef T type; };
-	#define REQUIRE_ITER(T) typename ft::enable_iff<!std::numeric_limits<T>::is_integer, T>::type * = NULL
   
 
   template<class T, T v>
@@ -47,21 +46,21 @@ namespace ft
   
   //Iterator traits
 
-  struct input_iterator {};
-  struct output_iterator_tag {};
-  struct forward_iterator_tag {};
-  struct bidirectional_iterator_tag {};
-  struct random_access_iterator_tag {};
+  /* struct input_iterator {}; */
+  /* struct output_iterator_tag {}; */
+  /* struct forward_iterator_tag {}; */
+  /* struct bidirectional_iterator_tag {}; */
+  /* struct random_access_iterator_tag {}; */
 
   // Base struct
   template <class Iterator>
   struct iterator_traits
   {
-    typename Iterator::difference_type difference_type;
-    typename Iterator::value_type value_type;
-    typename Iterator::pointer pointer;
-    typename Iterator::reference reference;
-    typename Iterator::iterator_category iterator_category;
+    typedef typename Iterator::difference_type difference_type;
+    typedef typename Iterator::value_type value_type;
+    typedef typename Iterator::pointer pointer;
+    typedef typename Iterator::reference reference;
+    typedef typename Iterator::iterator_category iterator_category;
   };
 
   //Specialization for T* (array-like)
@@ -72,7 +71,7 @@ namespace ft
     typedef T value_type;
     typedef T* pointer;
     typedef T& reference;
-    typedef ft::random_access_iterator_tag iterator_category;
+    typedef std::random_access_iterator_tag iterator_category;
   };
 
   //Specialization for const T*
@@ -83,9 +82,10 @@ namespace ft
     typedef T value_type;
     typedef const T* pointer;
     typedef const T& reference;
-    typedef ft::random_access_iterator_tag iterator_category;
+    typedef std::random_access_iterator_tag iterator_category;
   };
 
+	#define REQUIRE_ITER(T) typename ft::enable_if< !ft::is_integral<T>::value, T>::type * = NULL
   //Pairs
 
   template<class T1, class T2>
@@ -118,6 +118,20 @@ namespace ft
   bool operator==(struct pair<T1, T2> p1, struct pair<T1, T2> p2)
   {
     return p1.first == p2.first && p1.second == p2.second;
+  }
+
+
+  template <class InputIterator1, class InputIterator2>
+  bool lexicographical_compare (InputIterator1 first1, InputIterator1 last1,
+                                InputIterator2 first2, InputIterator2 last2)
+  {
+    while (first1!=last1)
+    {
+      if (first2==last2 || *first2<*first1) return false;
+      else if (*first1<*first2) return true;
+      ++first1; ++first2;
+    }
+    return (first2!=last2);
   }
 
 	template<typename T>
