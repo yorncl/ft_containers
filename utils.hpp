@@ -44,7 +44,49 @@ namespace ft
 
   template<class T> struct is_integral : ft::is_integral_base<T> {};
 
+  
+  //Iterator traits
 
+  struct input_iterator {};
+  struct output_iterator_tag {};
+  struct forward_iterator_tag {};
+  struct bidirectional_iterator_tag {};
+  struct random_access_iterator_tag {};
+
+  // Base struct
+  template <class Iterator>
+  struct iterator_traits
+  {
+    typename Iterator::difference_type difference_type;
+    typename Iterator::value_type value_type;
+    typename Iterator::pointer pointer;
+    typename Iterator::reference reference;
+    typename Iterator::iterator_category iterator_category;
+  };
+
+  //Specialization for T* (array-like)
+  template <class T>
+  struct iterator_traits<T*>
+  {
+    typedef std::ptrdiff_t difference_type;
+    typedef T value_type;
+    typedef T* pointer;
+    typedef T& reference;
+    typedef ft::random_access_iterator_tag iterator_category;
+  };
+
+  //Specialization for const T*
+  template <class T>
+  struct iterator_traits<const T*>
+  {
+    typedef std::ptrdiff_t difference_type;
+    typedef T value_type;
+    typedef const T* pointer;
+    typedef const T& reference;
+    typedef ft::random_access_iterator_tag iterator_category;
+  };
+
+  //Pairs
 
   template<class T1, class T2>
   struct pair
