@@ -24,7 +24,11 @@ def writeMemberTypes(soup):
     typedef = soup.select('#types div[title="C++98"] table td:nth-child(2) tt')
     for i in range(len(typename)):
         line = "\t\t"
-        tdef = typedef[i].string
+        # Added the try catch cause map wasn't working properly
+        try :
+            tdef = typedef[i].string
+        except IndexError:
+            tdef = "// TO COMPLETE"
         tname = typename[i].string
         if tdef is not None and not re.search("iterator", tname):
             m = re.search("^(iterator_traits<iterator>::difference_type)", tdef)
