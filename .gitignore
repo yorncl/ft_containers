@@ -1,7 +1,8 @@
 __pycache__
 test/pages
 test/inc
-test/test
+test/tests/*/*
+!test/tests/*/src/
 *.o
 *.out
 *.test

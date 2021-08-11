@@ -3,8 +3,8 @@
 #include <memory>
 #include "utils.hpp"
 #include "btree.hpp"
+#include "reverse_iterator.hpp"
 #include <map>
-std::map<string, int> stdmap;
 
 namespace ft
 {
@@ -16,8 +16,10 @@ namespace ft
            class Alloc = std::allocator<ft::pair<const Key,T> >    // map::allocator_type
            > class map
 	{
-		private:
+		public:
+    typedef map<Key, T, Compare, Alloc> _Self;
 		//Member types
+  
 		typedef Key key_type;
 		typedef T mapped_type;
 		typedef ft::pair<const key_type, mapped_type> value_type;
@@ -27,31 +29,60 @@ namespace ft
 		typedef typename allocator_type::const_reference const_reference;
 		typedef typename allocator_type::pointer pointer;
 		typedef typename allocator_type::const_pointer const_pointer;
-		typedef value_type const_pointer;
-		typedef T iterator;
-		typedef T const_iterator;
-		typedef T reverse_iterator;
-		typedef T const_reverse_iterator;
-		typedef typename ft::iterator_traits<iterator>::difference_type difference_type;
-		typedef difference_type size_type;
-		public:
-
-    static key_compare _comp;
-    static allocator_type _alloc;
-    
-    struct pair_compare
+		typedef ft::reverse_iterator<_Self> reverse_iterator;
+		typedef ft::const_reverse_iterator<_Self> const_reverse_iterator;
+    // Comparison member
+    class value_compare
     {
-      operator() (pointer x, pointer y) { return _comp(*x->first, *y->first); }
+      friend class map;
+    protected:
+      Compare comp;
+      value_compare (Compare c) : comp(c) {}
+    public:
+      typedef bool result_type;
+      typedef value_type first_argument_type;
+      typedef value_type second_argument_type;
+      bool operator() (const value_type& x, const value_type& y) const
+      {
+        return comp(x.first, y.first);
+      }
     };
 
-    ft::btree<pointer, pair_compare> _tree;
+    struct pair_pointer_compare
+    {
+      bool operator() (const pointer x, const pointer y, value_compare cmp = value_compare()) const { return cmp(*x, *y); }
+    };
+    typedef ft::btree<pointer, pair_pointer_compare> tree_type;
+    typedef typename tree_type::_node* node_pointer;
+		typedef typename tree_type::_BtreeIterator iterator;
+		typedef typename tree_type::_ConstBtreeIterator const_iterator;
+		typedef typename ft::iterator_traits<iterator>::difference_type difference_type;
+		typedef difference_type size_type;
 
+    key_compare _comp;
+    allocator_type _alloc;
 
-    static void create_pair(key_type& key, mapped_type& value)
+    
+    tree_type _tree;
+
+    static pointer copy_pair(reference src)
+    {
+      pointer pair = _alloc.allocate(sizeof(value_type));
+      _alloc.construct(pair, src);
+      return pair;
+    }
+
+    static pointer create_pair(key_type& key, mapped_type& value)
     {
       pointer pair = _alloc.allocate(sizeof(value_type));
       _alloc.construct(pair,ft::make_pair<key_type, mapped_type>(key, value));
       return pair;
+    }
+
+    static void destroy_pair(pointer pair)
+    {
+      _alloc.destroy(pair);
+      _alloc.deallocate(pair, sizeof(value_type));
     }
 
 		// constructor
@@ -59,72 +90,98 @@ namespace ft
 		{
       _comp = comp;
       _alloc = alloc; 
+      _tree = ft::btree<pointer, pair_pointer_compare>(true, destroy_pair);
 		}
 		template <class InputIterator>
 		map (InputIterator first, InputIterator last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
 		{
-      _comp = copm;
+      _comp = comp;
       _alloc = alloc;
-			(void) last;
-			(void) comp;
-			(void) alloc;
+      while (first != last)
+      {
+        pointer ptr = create_pair(*first);
+        _tree.insert(ptr, _comp);
+        first++;
+      }
+      _tree = ft::btree<pointer, pair_pointer_compare>(true, destroy_pair);
 		}
 		map (const map& x)
 		{
-			(void) x;
+      _tree = x._tree;
 		}
 
 		// ~map
 		~map()
-		{
+		{ 
+      _tree.destroy();
 		}
 
 		// operator=
 		map& operator= (const map& x)
 		{
-			(void) x;
+      _tree = x._tree;
 		}
 
 		// begin
 		iterator begin()
 		{
+      iterator(_tree.first());
 		}
 		const_iterator begin() const
 		{
+      const_iterator(_tree.begin());
 		}
 
 		// end
 		iterator end()
 		{
+      iterator it(_tree.last());
+      it++;
+      return it;
 		}
 		const_iterator end() const
 		{
+      const_iterator it(_tree.last());
+      it++;
+      return it;
 		}
 
 		// rbegin
 		reverse_iterator rbegin()
 		{
+      iterator it = end();
+      return reverse_iterator(it);
 		}
 		const_reverse_iterator rbegin() const
 		{
+      const_iterator it = end();
+      return const_reverse_iterator(it);
 		}
 
 		// rend
 		reverse_iterator rend()
 		{
+      iterator it = begin();
+      it--;
+      return reverse_iterator(it);
 		}
 		const_reverse_iterator rend() const
 		{
+      const_iterator it = begin();
+      it--;
+      return const_reverse_iterator(it);
 		}
 
 		// empty
 		bool empty() const
 		{
+      return _tree._size == 0;
 		}
 
 		// size
 		size_type size() const
 		{
+      return _tree._size;
 		}
 
 		// max_size
@@ -135,7 +192,10 @@ namespace ft
 		// operator[]
 		mapped_type& operator[] (const key_type& k)
 		{
-			(void) k;
+      
+      value_type pair = ft::make_pair(k, mapped_type());
+      reference ref = *_tree.search(_tree._root, pair)->_data;
+      return ref.second;
 		}
 
 		// insert
@@ -179,16 +239,19 @@ namespace ft
 		// clear
 		void clear()
 		{
+      _tree.destroy();
 		}
 
 		// key_comp
 		key_compare key_comp() const
 		{
+      return key_compare();
 		}
 
 		// value_comp
 		value_compare value_comp() const
 		{
+      return value_compare();
 		}
 
 		// find
@@ -237,25 +300,6 @@ namespace ft
 			(void) k;
 		}
 	};
-
-
-  // Comparison member
-  template <class Key, class T, class Compare, class Alloc>
-  class map<Key,T,Compare,Alloc>::value_compare
-  {
-    friend class map;
-  protected:
-    Compare comp;
-    value_compare (Compare c) : comp(c) {}
-  public:
-    typedef bool result_type;
-    typedef value_type first_argument_type;
-    typedef value_type second_argument_type;
-    bool operator() (const value_type& x, const value_type& y) const
-    {
-      return comp(x.first, y.first);
-    }
-  }
-};
+} // namespace ft;
 
 #endif //MAP_HPP

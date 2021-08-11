@@ -36,6 +36,8 @@ namespace ft
 		_Self operator--(int) {_Self tmp = *this; _el--; return tmp;}
 		_Self& operator++() {_el++; return *this;}
 		_Self& operator--() {_el--; return *this;}
+		_Self& operator+=(int x) {_el += x; return *this;}
+		_Self& operator-=(int x) {_el -= x; return *this;}
 		_Self operator+(int a) { return _Self(_el + a); }
 		_Self operator-(int a) { return _Self(_el - a); }
 		difference_type operator-(_Self a) { return _el - a._el; }
@@ -46,6 +48,7 @@ namespace ft
 		bool operator<=(_Self other) const {return _el <= other._el;}
 		bool operator>=(_Self other) const {return _el >= other._el;}
 		reference operator*() const {return *_el;}
+		reference operator->() const {return *_el;}
 		~_VectorIterator(){}
 	};
 		// reference operator+(int) const {return *_el;}
@@ -70,6 +73,8 @@ namespace ft
 		_Self operator--(int) {_Self tmp = *this; _el--; return tmp;}
 		_Self& operator++() {_el++; return *this;}
 		_Self& operator--() {_el--; return *this;}
+		_Self& operator+=(int x) {_el += x; return *this;}
+		_Self& operator-=(int x) {_el -= x; return *this;}
 		_Self operator+(int a) {return _Self(_el + a);}
 		_Self operator-(int a) {return _Self(_el - a);}
 		difference_type operator-(_Self a) { return _el - a._el; }
@@ -80,6 +85,7 @@ namespace ft
 		bool operator<=(_Self other) const {return _el <= other._el;}
 		bool operator>=(_Self other) const {return _el >= other._el;}
 		reference operator*() const {return *_el;}
+		reference operator->() const {return *_el;}
 		~_ConstVectorIterator(){}
 	};
 

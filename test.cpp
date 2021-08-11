@@ -7,10 +7,8 @@
 #define REDC "\033[0;31m"
 #define NC "\033[0m"
 
-/* #define ft::btree<int, std::less<>>::_node::BLACK color_black */
-/* #define ft::btree<int, std::less<>>::_node::RED color_red */
 
-void printr(ft::btree<int, std::less<> >::_node *n, int level)
+void printr(ft::btree<int>::_node *n, int level)
 {
   if (!n)
     return;
@@ -26,7 +24,7 @@ void printr(ft::btree<int, std::less<> >::_node *n, int level)
     printr(n->left, level + 1);
 }
 
-void print_tree(ft::btree<int, std::less<> >& tree)
+void print_tree(ft::btree<int>& tree)
 {
   printr(tree._root->right, 1);
   if (tree._root)
@@ -39,7 +37,7 @@ void print_tree(ft::btree<int, std::less<> >& tree)
 int main(void)
 {
 
-  ft::btree<int, std::less<> > tree;
+  ft::btree<int> tree;
   tree.insert(3);
   print_tree(tree);
   std::cout << "----------------------" << std::endl;

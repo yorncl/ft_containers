@@ -6,41 +6,205 @@
 namespace ft
 {
 
-  template<class T, typename Compare>
+  template<class T, typename Compare = std::less<T> >
   class btree
   {
-
-
     public:
+
     typedef struct s_node
     {
       s_node(T data = T())
       {
         _data = data;
+        parent = NULL;
+        left = NULL;
+        right = NULL;
       }
-      struct s_node* parent = NULL;
-      struct s_node* left = NULL;
-      struct s_node* right = NULL;
+      s_node(struct s_node& src)
+      {
+        parent = src.parent;
+        left = src.left;
+        right = src.right;
+        _data = src._data;
+      }
+      s_node* parent;
+      s_node* left;
+      s_node* right;
       T _data;
     } _node;
 
+    static _node* next(_node* n)
+    {
+      if (n->right)
+      {
+        n = n->right;
+        while (n->left)
+          n = n->left;
+        return n;
+      }
+      while (true)
+      {
+        if (n == NULL || n->parent == NULL)
+          return NULL;
+        if (n->parent->left == n)
+          return n->parent;
+        n = n->parent;
+      }
+      return NULL;
+    }
+    static _node* prev(_node* n)
+    {
+      if (n->left)
+      {
+        n = n->left;
+        while (n->right)
+          n = n->right;
+        return n;
+      }
+      while (true)
+      {
+        if (n == NULL || n->parent == NULL)
+          return NULL;
+        if (n->parent->right == n)
+          return n->parent;
+        n = n->parent;
+      }
+      return NULL;
+    }
+
+    class _ConstBtreeIterator;
+
+    class _BtreeIterator
+    {
+      public:
+      typedef _BtreeIterator	_Self;
+      typedef std::ptrdiff_t		difference_type;
+      typedef T					value_type;
+      typedef T*					pointer;
+      typedef T&					reference;
+      typedef std::bidirectional_iterator_tag iterator_category;
+
+      _node* _n;
+      
+      explicit _BtreeIterator(){_n = NULL;}
+      explicit _BtreeIterator(const _node* p){_n = p;}
+      _BtreeIterator(const _BtreeIterator &it){_n = it._n;}
+      _BtreeIterator(const _ConstBtreeIterator &it){_n = const_cast<_node*>(it._n);}
+      _Self operator++(int) { _Self tmp = *this; _n = next(_n); return tmp; }
+      _Self operator--(int) {_Self tmp = *this; _n = prev(_n); return tmp;}
+      _Self& operator++() {_n = next(_n); return *this;}
+      _Self& operator--() {_n = preve(_n); return *this;}
+      bool operator==(_Self other) const {return _n == other._n;}
+      bool operator!=(_Self other) const {return _n != other._n;}
+      reference operator*() const {return _n->_data;}
+      reference operator->() const {return _n->_data;}
+      ~_BtreeIterator(){}
+    };
+
+
+    class _ConstBtreeIterator
+    {
+      public:
+      typedef _ConstBtreeIterator	_Self;
+      typedef std::ptrdiff_t		difference_type;
+      typedef const T					value_type;
+      typedef const T*					pointer;
+      typedef const T&					reference;
+      typedef std::bidirectional_iterator_tag iterator_category;
+
+      _node* _n;
+      
+      explicit _ConstBtreeIterator(){_n = NULL;}
+      explicit _ConstBtreeIterator(const _node* p){_n = p;}
+      _ConstBtreeIterator(const _BtreeIterator &it){_n = it._n;}
+      _ConstBtreeIterator(const _ConstBtreeIterator &it){_n = it._n;}
+      _Self operator++(int) { _Self tmp = *this; _n = next(_n); return tmp; }
+      _Self operator--(int) {_Self tmp = *this; _n = prev(_n); return tmp;}
+      _Self& operator++() {_n = next(_n); return *this;}
+      _Self& operator--() {_n = preve(_n); return *this;}
+      bool operator==(_Self other) const {return _n == other._n;}
+      bool operator!=(_Self other) const {return _n != other._n;}
+      reference operator*() const {return _n->_data;}
+      reference operator->() const {return _n->_data;}
+      ~_ConstBtreeIterator(){}
+    };
 
     _node* _root;
     _node* _null_node;
+    void (*_del)(T);
     size_t _size;
     bool _unique;
+    Compare _cmp;
 
-    static bool equal(T& x, T& y, Compare cmp = Compare{}) { return !cmp(x, y) && !cmp(y, x);}
+    static bool equal(T& x, T& y) { Compare cmp; return !cmp(x, y) && !cmp(y, x);}
 
-    btree(bool unique = true)
+    _node* _deep_copy(_node* target)
     {
+      if (target == NULL)
+        return NULL;
+      _node* cpy = new _node(target->_data);
+      if (target->left)
+      {
+        cpy->left = _deep_copy(target->left);
+        cpy->left->parent = cpy;
+      }
+      if (target->right)
+      {
+        cpy->right = _deep_copy(target->right);
+        cpy->right->parent = cpy;
+      }
+      return cpy;
+    }
+
+    void _destroy(_node *n)
+    {
+
+      _node *r,*l;
+
+      if (_del)
+        _del(n->_data);
+      l = n->left;
+      r = n->right;
+      delete n;
+      if (l)
+        _destroy(l);
+      if (r)
+        _destroy(r);
+    }
+
+    void destroy()
+    {
+      _destroy(_root);
+      _size = 0;
+    }
+
+    btree(bool unique = true, void (*del)(T) = NULL)
+    {
+      _del = del;
       _size = 0;
       _root = NULL;
-      
       _unique = unique; 
     }
 
-    void insert(T data, Compare cmp = Compare{})
+    btree(btree& src)
+    {
+      _root = _deep_copy(src._root);
+      _size = src._size;
+    }
+
+    ~btree()
+    {
+      _destroy(_root);
+    }
+
+    btree& operator=(const btree& src)
+    {
+      destroy();
+      _size = src._size;
+      _root = _deep_copy(src._root);
+    }
+
+    void insert(T data)
     {
       _node* n = new _node(data);
       if (_root == NULL) 
@@ -58,7 +222,7 @@ namespace ft
           delete n;
           return;
         }
-        if (cmp(n->_data, curr->_data)) // go left cause n comes before curr
+        if (_cmp(n->_data, curr->_data)) // go left cause n comes before curr
           next = &curr->left;
         else
           next = &curr->right;
@@ -75,11 +239,11 @@ namespace ft
         return ;
     }
 
-    _node* search_node(_node* root, T& data, Compare cmp = Compare{})
+    _node* search_node(_node* root, T& data)
     {
       
         while (root && !equal(data, root->_data))
-          if (cmp(data, root->_data))
+          if (_cmp(data, root->_data))
               root = root->left;
           else
               root = root->right;
@@ -87,6 +251,21 @@ namespace ft
         return root;
     }
 
+    _node* first()
+    {
+      _node* n = _root;
+      while (n->left)
+        n = n->left;
+      return n;
+    }
+
+    _node* last()
+    {
+      _node* n = _root;
+      while (n->righ)
+        n = n->right;
+      return n;
+    }
 
     _node* transplant(_node* u, _node* v)
     {
@@ -101,7 +280,7 @@ namespace ft
       return v;
     }
     
-    void remove(T data, Compare cmp = Compare{})
+    void remove(T data)
     {
 
       // Base case
@@ -111,7 +290,7 @@ namespace ft
       _node* n = _root;
       while (n && !equal(data, n->_data))
       {
-        if (cmp(data, n->_data))
+        if (_cmp(data, n->_data))
           n = n->left; 
         else
           n = n->right;
@@ -147,6 +326,10 @@ namespace ft
         if (n == _root)
           _root = tmp; 
       }
+      if (_del)
+        _del(n->_data);
+      delete n;
+      _size--;
     }
   };
 } // namespace ft

@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 CC="clang++"
-CLFLAGS=" -Wall -Wextra -Werror -std=c++98 -g -fsanitize=address "
+CLFLAGS=" -Wall -Wextra -Werror -std=c++98 -g -fsanitize=address -ferror-limit=3"
 CONTAINERS_DIR="../"
 
 # https://stackoverflow.com/questions/59895/how-can-i-get-the-source-directory-of-a-bash-script-from-within-the-script-itsel
