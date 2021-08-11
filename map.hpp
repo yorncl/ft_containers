@@ -2,6 +2,7 @@
 #define FT_MAP_HPP
 #include <memory>
 #include "utils.hpp"
+#include "btree.hpp"
 #include <map>
 std::map<string, int> stdmap;
 
@@ -19,32 +20,51 @@ namespace ft
 		//Member types
 		typedef Key key_type;
 		typedef T mapped_type;
-		typedef ft::pair<const key_type, mapped_type>;
+		typedef ft::pair<const key_type, mapped_type> value_type;
 		typedef Compare key_compare;
 		typedef Alloc allocator_type;
 		typedef typename allocator_type::reference reference;
 		typedef typename allocator_type::const_reference const_reference;
 		typedef typename allocator_type::pointer pointer;
 		typedef typename allocator_type::const_pointer const_pointer;
-		/* typedef value_type const_pointer; */
+		typedef value_type const_pointer;
 		typedef T iterator;
 		typedef T const_iterator;
 		typedef T reverse_iterator;
 		typedef T const_reverse_iterator;
-		typedef ft::iterator_traits<iterator>::difference_type difference_type;
+		typedef typename ft::iterator_traits<iterator>::difference_type difference_type;
 		typedef difference_type size_type;
 		public:
+
+    static key_compare _comp;
+    static allocator_type _alloc;
+    
+    struct pair_compare
+    {
+      operator() (pointer x, pointer y) { return _comp(*x->first, *y->first); }
+    };
+
+    ft::btree<pointer, pair_compare> _tree;
+
+
+    static void create_pair(key_type& key, mapped_type& value)
+    {
+      pointer pair = _alloc.allocate(sizeof(value_type));
+      _alloc.construct(pair,ft::make_pair<key_type, mapped_type>(key, value));
+      return pair;
+    }
 
 		// constructor
 		explicit map (const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
 		{
-			(void) comp;
-			(void) alloc;
+      _comp = comp;
+      _alloc = alloc; 
 		}
 		template <class InputIterator>
 		map (InputIterator first, InputIterator last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
 		{
-			(void) first;
+      _comp = copm;
+      _alloc = alloc;
 			(void) last;
 			(void) comp;
 			(void) alloc;
