@@ -7,35 +7,31 @@
 #define REDC "\033[0;31m"
 #define NC "\033[0m"
 
-
-void printr(ft::btree<int>::_node *n, int level)
-{
+void printr(ft::btree<int>::_node *n, int level) {
   if (!n)
     return;
   if (n->right)
     printr(n->right, level + 1);
   int i = -1;
-  while(++i < level)
+  while (++i < level)
     std::cout << "       ";
-  std::cout << n->_data << std::endl;
+  std::cout << *n->_data << std::endl;
   std::cout << std::endl;
 
   if (n->left)
     printr(n->left, level + 1);
 }
 
-void print_tree(ft::btree<int>& tree)
-{
+void print_tree(ft::btree<int> &tree) {
   printr(tree._root->right, 1);
   if (tree._root)
-    std::cout << tree._root->_data  << std::endl;
+    std::cout << *tree._root->_data << std::endl;
   else
     std::cout << "Oh oh, root is empty !" << std::endl;
   printr(tree._root->left, 1);
 }
 
-int main(void)
-{
+int main(void) {
 
   ft::btree<int> tree;
   tree.insert(3);
@@ -55,7 +51,7 @@ int main(void)
   tree.insert(7);
   tree.insert(7);
   print_tree(tree);
-  
+
   std::cout << "============= DELETION ===============" << std::endl;
   tree.remove(7);
   print_tree(tree);

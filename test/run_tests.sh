@@ -1,4 +1,5 @@
 #!/usr/bin/bash
+#!/bin/bash
 
 CC="clang++"
 CLFLAGS=" -Wall -Wextra -Werror -std=c++98 -g -fsanitize=address -ferror-limit=3"
