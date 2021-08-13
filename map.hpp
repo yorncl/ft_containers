@@ -32,13 +32,14 @@ public:
   typedef ft::const_reverse_iterator<_Self> const_reverse_iterator;
   // Comparison member
   class value_compare {
-    friend class map;
+
 
   protected:
     Compare comp;
     value_compare(Compare c) : comp(c) {}
 
   public:
+  value_compare() : comp() {}
     typedef bool result_type;
     typedef value_type first_argument_type;
     typedef value_type second_argument_type;
@@ -47,13 +48,7 @@ public:
     }
   };
 
-  struct pair_pointer_compare {
-    bool operator()(const pointer x, const pointer y,
-                    value_compare cmp = value_compare()) const {
-      return cmp(*x, *y);
-    }
-  };
-  typedef ft::btree<pointer, pair_pointer_compare> tree_type;
+  typedef ft::btree<value_type, value_compare> tree_type;
   typedef typename tree_type::_node *node_pointer;
   typedef typename tree_type::_BtreeIterator iterator;
   typedef typename tree_type::_ConstBtreeIterator const_iterator;
@@ -71,7 +66,7 @@ public:
                const allocator_type &alloc = allocator_type()) {
     _comp = comp;
     _alloc = alloc;
-    _tree = ft::btree<pointer, pair_pointer_compare>(true, _alloc);
+    _tree = tree_type(true, _alloc);
   }
   template <class InputIterator>
   map(InputIterator first, InputIterator last,
@@ -96,8 +91,8 @@ public:
   map &operator=(const map &x) { _tree = x._tree; }
 
   // begin
-  iterator begin() { iterator(_tree.first()); }
-  const_iterator begin() const { const_iterator(_tree.begin()); }
+  iterator begin() { return iterator(_tree.first()); }
+  const_iterator begin() const { return const_iterator(_tree.begin()); }
 
   // end
   iterator end() {
@@ -145,7 +140,7 @@ public:
   // operator[]
   mapped_type &operator[](const key_type &k) {
 
-    value_type pair = ft::make_pair<key_type, mapped_type>(k, mapped_type());
+    value_type pair = ft::make_pair<const key_type, mapped_type>(k, mapped_type());
     node_pointer ptr = _tree.search_node(_tree._root, pair);
     reference ref = *ptr->_data;
     return ref.second;

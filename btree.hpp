@@ -123,8 +123,8 @@ public:
     }
     bool operator==(_Self other) const { return _n == other._n; }
     bool operator!=(_Self other) const { return _n != other._n; }
-    reference operator*() const { return _n->_data; }
-    reference operator->() const { return _n->_data; }
+    pointer operator*() const { return *_n->_data; }
+    pointer operator->() const { return *_n->_data; }
     ~_BtreeIterator() {}
   };
 
@@ -163,8 +163,8 @@ public:
     }
     bool operator==(_Self other) const { return _n == other._n; }
     bool operator!=(_Self other) const { return _n != other._n; }
-    reference operator*() const { return _n->_data; }
-    reference operator->() const { return _n->_data; }
+    pointer operator*() const { return _n->_data; }
+    pointer operator->() const { return _n->_data; }
     ~_ConstBtreeIterator() {}
   };
 
@@ -232,6 +232,7 @@ public:
     destroy();
     _size = src._size;
     _root = _deep_copy(src._root);
+    _alloc = src._alloc;
     return *this;
   }
 
@@ -267,8 +268,8 @@ public:
 
   _node *search_node(_node *root, T &data) {
 
-    while (root && !equal(data, root->_data))
-      if (_cmp(data, root->_data))
+    while (root && !equal(data, *root->_data))
+      if (_cmp(data, *root->_data))
         root = root->left;
       else
         root = root->right;
