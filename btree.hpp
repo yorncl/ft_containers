@@ -97,8 +97,8 @@ public:
 
     _node *_n;
 
-    explicit _BtreeIterator() { _n = NULL; }
-    explicit _BtreeIterator(const _node *p) { _n = p; }
+    _BtreeIterator() { _n = NULL; }
+    _BtreeIterator(const _node *p) { _n = const_cast<_node*>(p); }
     _BtreeIterator(const _BtreeIterator &it) { _n = it._n; }
     _BtreeIterator(const _ConstBtreeIterator &it) {
       _n = const_cast<_node *>(it._n);
@@ -123,8 +123,8 @@ public:
     }
     bool operator==(_Self other) const { return _n == other._n; }
     bool operator!=(_Self other) const { return _n != other._n; }
-    pointer operator*() const { return *_n->_data; }
-    pointer operator->() const { return *_n->_data; }
+    pointer operator*() const { return _n->_data; }
+    pointer operator->() const { return _n->_data; }
     ~_BtreeIterator() {}
   };
 
@@ -137,10 +137,10 @@ public:
     typedef const T &reference;
     typedef std::bidirectional_iterator_tag iterator_category;
 
-    _node *_n;
+    const _node *_n;
 
-    explicit _ConstBtreeIterator() { _n = NULL; }
-    explicit _ConstBtreeIterator(const _node *p) { _n = p; }
+    _ConstBtreeIterator() { _n = NULL; }
+    _ConstBtreeIterator(const _node *p) { _n = p; }
     _ConstBtreeIterator(const _BtreeIterator &it) { _n = it._n; }
     _ConstBtreeIterator(const _ConstBtreeIterator &it) { _n = it._n; }
     _Self operator++(int) {
@@ -194,22 +194,49 @@ public:
     return cpy;
   }
 
+  void _destroy_single(_node *n)
+  {
+    destroy_data(n->_data, _alloc);
+    delete n;
+  }
+
   void _destroy(_node *n) {
 
     _node *r, *l;
 
-    destroy_data(n->_data, _alloc);
+    if (!n)
+      return;
+
     l = n->left;
     r = n->right;
-    delete n;
+    _destroy_single(n);
     if (l)
       _destroy(l);
     if (r)
       _destroy(r);
   }
 
+  static void replace_node(_node* dest, _node* src)
+  {
+    src->right = dest->right;
+    src->left = dest->left;
+    src->parent = dest->parent;
+    if (src->left)
+      src->left->parent = src;
+    if (src->right)
+      src->right->parent = src;
+    if (dest->parent)
+    {
+      if (dest->parent->left == dest)
+        dest->parent->left = src;
+      else
+        dest->parent->right = src;
+    }
+  }
+
   void destroy() {
     _destroy(_root);
+    _root = NULL;
     _size = 0;
   }
 
@@ -236,6 +263,25 @@ public:
     return *this;
   }
 
+  static size_t _count(_node *n, T& data)
+  {
+    size_t count = 0;
+    if (n == NULL)
+      return count;
+    if (equal(*n->_data, data))
+      count = 1;
+    if (n->left)
+      count += _count(n->left, data);
+    if (n->right)
+      count += _count(n->right, data);
+    return count;
+  }
+
+  size_t count(T& data) const
+  {
+    return _count(_root, data);
+  }
+
   void insert(T data) {
     _node *n = new _node(data, _alloc);
     if (_root == NULL) {
@@ -247,7 +293,8 @@ public:
     _node **next;
     while (1) {
       if (equal(*n->_data, *curr->_data) && _unique == true) {
-        delete n;
+        replace_node(curr, n);
+        _destroy_single(curr);
         return;
       }
       if (_cmp(*n->_data, *curr->_data)) // go left cause n comes before curr
@@ -268,6 +315,8 @@ public:
 
   _node *search_node(_node *root, T &data) {
 
+    if (!root)
+      return NULL;
     while (root && !equal(data, *root->_data))
       if (_cmp(data, *root->_data))
         root = root->left;
@@ -277,16 +326,16 @@ public:
     return root;
   }
 
-  _node *first() {
+  _node *first() const {
     _node *n = _root;
     while (n->left)
       n = n->left;
     return n;
   }
 
-  _node *last() {
+  _node *last() const {
     _node *n = _root;
-    while (n->righ)
+    while (n->right)
       n = n->right;
     return n;
   }

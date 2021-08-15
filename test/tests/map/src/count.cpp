@@ -13,7 +13,8 @@ int main ()
 
   for (c='a'; c<'h'; c++)
   {
-    std::cout << c;
+    std::cout << c << std::endl;
+    std::cout << mymap.count(c) << std::endl;
     if (mymap.count(c)>0)
       std::cout << " is an element of mymap.\n";
     else 

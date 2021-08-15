@@ -62,7 +62,7 @@ public:
   tree_type _tree;
 
   // constructor
-  explicit map(const key_compare &comp = key_compare(),
+  map(const key_compare &comp = key_compare(),
                const allocator_type &alloc = allocator_type()) {
     _comp = comp;
     _alloc = alloc;
@@ -85,7 +85,7 @@ public:
   map(const map &x) { _tree = x._tree; }
 
   // ~map
-  ~map() { _tree.destroy(); }
+  ~map() {}
 
   // operator=
   map &operator=(const map &x) { _tree = x._tree; }
@@ -142,6 +142,9 @@ public:
 
     value_type pair = ft::make_pair<const key_type, mapped_type>(k, mapped_type());
     node_pointer ptr = _tree.search_node(_tree._root, pair);
+    if (ptr == NULL)
+      _tree.insert(pair);
+    ptr = _tree.search_node(_tree._root, pair);
     reference ref = *ptr->_data;
     return ref.second;
   }
@@ -183,7 +186,10 @@ public:
   const_iterator find(const key_type &k) const { (void)k; }
 
   // count
-  size_type count(const key_type &k) const { (void)k; }
+  size_type count(const key_type &k) const {
+    value_type search = ft::make_pair<const key_type, mapped_type>(k, mapped_type());
+    return _tree.count(search);
+  }
 
   // lower_bound
   iterator lower_bound(const key_type &k) { (void)k; }
