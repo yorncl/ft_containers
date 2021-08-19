@@ -10,7 +10,7 @@ int main ()
   mymap['b']=20;
   mymap['c']=30;
 
-  std::pair<NAMESPACE::map<char,int>::iterator,NAMESPACE::map<char,int>::iterator> ret;
+  NAMESPACE::pair<NAMESPACE::map<char,int>::iterator,NAMESPACE::map<char,int>::iterator> ret;
   ret = mymap.equal_range('b');
 
   std::cout << "lower bound points to: ";

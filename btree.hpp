@@ -263,6 +263,27 @@ public:
     return *this;
   }
 
+  void swap(btree& x)
+  {
+    _node* tmproot = _root;
+    size_t tmpsize = _size;
+    allocator_type tmpalloc = _alloc;
+    Compare tmpcmp = _cmp;
+    bool tmpunique = _unique;
+
+    _root = x._root;
+    _size = x._size;
+    _alloc = x._alloc;
+    _cmp = x._cmp;
+    _unique = x._unique;
+
+    x._root = tmproot;
+    x._size = tmpsize;
+    x._alloc = tmpalloc;
+    x._cmp = tmpcmp;
+    x._unique = tmpunique;
+  }
+
   static size_t _count(_node *n, T& data)
   {
     size_t count = 0;

@@ -91,8 +91,17 @@ namespace ft
   template<class T1, class T2>
   struct pair
   {
+    pair()
+    {
+      first = T1();
+      second = T2();
+    }
     pair(T1 f, T2 s) : first(f), second(s)
     {
+    }
+    pair(const pair& p) : first(p.first), second(p.second)
+    {
+
     }
     struct pair<T1, T2>& operator=(struct pair<T1, T2> p)
     {

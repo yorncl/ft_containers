@@ -15,6 +15,7 @@ namespace ft
 
 		iterator _it;
 		
+		reverse_iterator(){}
 		reverse_iterator(const iterator &it){_it = it;}
 		_Self operator++(int) {_Self tmp = *this; _it--; return tmp;}
 		_Self& operator--() {_it++; return *this;}
@@ -22,7 +23,8 @@ namespace ft
 		_Self operator--(int) {_Self tmp = *this; _it++; return tmp;}
 		bool operator==(_Self other) const {return _it == other._it;}
 		bool operator!=(_Self other) const {return _it != other._it;}
-		reference operator*() const {return *_it;}
+		reference operator*() const {return **_it;}
+		pointer operator->() const {return *_it;}
 		~reverse_iterator(){}
 	};
 
@@ -39,6 +41,7 @@ namespace ft
 
 		const_iterator _it;
 		
+		const_reverse_iterator(){}
 		const_reverse_iterator(const reverse_iterator<Container> &it){_it = it._it;}
 		const_reverse_iterator(const const_iterator &it){_it = it;}
 		_Self operator++(int) {_Self tmp = *this; _it--; return tmp;}
@@ -47,7 +50,8 @@ namespace ft
 		_Self operator--(int) {_Self tmp = *this; _it++; return tmp;}
 		bool operator==(_Self other) const {return _it == other._it;}
 		bool operator!=(_Self other) const {return _it != other._it;}
-		reference operator*() const {return *_it;}
+		reference operator*() const {return **_it;}
+		pointer operator->() const {return *_it;}
 		~const_reverse_iterator(){}
 	};
 };
