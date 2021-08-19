@@ -23,8 +23,8 @@ namespace ft
 		_Self operator--(int) {_Self tmp = *this; _it++; return tmp;}
 		bool operator==(_Self other) const {return _it == other._it;}
 		bool operator!=(_Self other) const {return _it != other._it;}
-		reference operator*() const {return **_it;}
-		pointer operator->() const {return *_it;}
+		reference operator*() const {return *_it;}
+		iterator operator->() const {return _it;}
 		~reverse_iterator(){}
 	};
 
@@ -50,8 +50,8 @@ namespace ft
 		_Self operator--(int) {_Self tmp = *this; _it++; return tmp;}
 		bool operator==(_Self other) const {return _it == other._it;}
 		bool operator!=(_Self other) const {return _it != other._it;}
-		reference operator*() const {return **_it;}
-		pointer operator->() const {return *_it;}
+		reference operator*() const {return *_it;}
+		iterator operator->() const {return _it;}
 		~const_reverse_iterator(){}
 	};
 };

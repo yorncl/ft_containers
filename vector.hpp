@@ -48,7 +48,7 @@ namespace ft
 		bool operator<=(_Self other) const {return _el <= other._el;}
 		bool operator>=(_Self other) const {return _el >= other._el;}
 		reference operator*() const {return *_el;}
-		reference operator->() const {return *_el;}
+		pointer operator->() const {return _el;}
 		~_VectorIterator(){}
 	};
 		// reference operator+(int) const {return *_el;}
@@ -85,7 +85,7 @@ namespace ft
 		bool operator<=(_Self other) const {return _el <= other._el;}
 		bool operator>=(_Self other) const {return _el >= other._el;}
 		reference operator*() const {return *_el;}
-		reference operator->() const {return *_el;}
+		pointer operator->() const {return _el;}
 		~_ConstVectorIterator(){}
 	};
 

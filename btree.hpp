@@ -123,7 +123,7 @@ public:
     }
     bool operator==(_Self other) const { return _n == other._n; }
     bool operator!=(_Self other) const { return _n != other._n; }
-    pointer operator*() const { return _n->_data; }
+    reference operator*() const { return *_n->_data; }
     pointer operator->() const { return _n->_data; }
     ~_BtreeIterator() {}
   };
@@ -163,7 +163,7 @@ public:
     }
     bool operator==(_Self other) const { return _n == other._n; }
     bool operator!=(_Self other) const { return _n != other._n; }
-    pointer operator*() const { return _n->_data; }
+    reference operator*() const { return *_n->_data; }
     pointer operator->() const { return _n->_data; }
     ~_ConstBtreeIterator() {}
   };

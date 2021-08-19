@@ -88,7 +88,10 @@ public:
   ~map() {}
 
   // operator=
-  map &operator=(const map &x) { _tree = x._tree; }
+  map &operator=(const map &x) {
+    _tree = x._tree;
+    return *this;
+  }
 
   // begin
   iterator begin() { return iterator(_tree.first()); }
@@ -171,7 +174,7 @@ public:
   }
 
   // erase
-  void erase(iterator position) { _tree.remove(**position); }
+  void erase(iterator position) { _tree.remove(*position); }
   size_type erase(const key_type &k) {
 
     if (_tree._root == NULL)
@@ -188,7 +191,7 @@ public:
       next++;
     while (first != last)
     {
-      _tree.remove(**first);
+      _tree.remove(*first);
       first = next;
       if (next != end())
         next++;
@@ -234,12 +237,32 @@ public:
   }
 
   // lower_bound
-  iterator lower_bound(const key_type &k) { (void)k; }
-  const_iterator lower_bound(const key_type &k) const { (void)k; }
+  iterator lower_bound(const key_type &k) {
+    iterator it = begin();
+    while (it != end() && _comp(it->first, k))
+      it++;
+    return it;
+  }
+  const_iterator lower_bound(const key_type &k) const {
+    const_iterator it = begin();
+    while (it != end() && _comp(it->first, k))
+      it++;
+    return it;
+  }
 
   // upper_bound
-  iterator upper_bound(const key_type &k) { (void)k; }
-  const_iterator upper_bound(const key_type &k) const { (void)k; }
+  iterator upper_bound(const key_type &k) {
+    iterator it(_tree.last());
+    while (it != end() && _comp(it->first, k))
+      it--;
+    return it; // technically it's not end(), but it's the same it terms of the pointer value 
+  }
+  const_iterator upper_bound(const key_type &k) const {
+    const_iterator it(_tree.last());
+    while (it != end() && _comp(it->first, k))
+      it--;
+    return it;
+  }
 
   // equal_range
   ft::pair<const_iterator, const_iterator> equal_range(const key_type &k) const {
