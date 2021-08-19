@@ -3,7 +3,7 @@
 #include "btree.hpp"
 #include "reverse_iterator.hpp"
 #include "utils.hpp"
-#include <map>
+#include <limits>
 #include <memory>
 
 namespace ft {
@@ -71,16 +71,16 @@ public:
   template <class InputIterator>
   map(InputIterator first, InputIterator last,
       const key_compare &comp = key_compare(),
-      const allocator_type &alloc = allocator_type()) {
+      const allocator_type &alloc = allocator_type(), REQUIRE_ITER(InputIterator)) {
     _comp = comp;
     _alloc = alloc;
     _tree._alloc = _alloc;
     while (first != last) {
-      pointer ptr = create_pair(*first);
-      _tree.insert(ptr, _comp);
+      value_type pair = ft::make_pair(first->first, first->second);
+      _tree.insert(pair);
       first++;
     }
-    _tree = _Self(true, _alloc);
+    _tree = tree_type(true, _alloc);
   }
   map(const map &x) { _tree = x._tree; }
 
@@ -138,7 +138,9 @@ public:
   size_type size() const { return _tree._size; }
 
   // max_size
-  size_type max_size() const {}
+  size_type max_size() const {
+			return std::numeric_limits<difference_type>::max() / (sizeof(T));
+  }
 
   // operator[]
   mapped_type &operator[](const key_type &k) {
@@ -154,7 +156,7 @@ public:
 
   // insert
   pair<iterator, bool> insert(const value_type &val) {
-    iterator it = find(val);
+    iterator it = find(val.first);
     if (it != end())
       return ft::make_pair<iterator, bool> (it, false);
     _tree.insert(val);
@@ -163,8 +165,7 @@ public:
 
   iterator insert(iterator position, const value_type &val) {
     (void) position;
-    (void) val;
-    /* return insert(val)::iterator; */
+    return insert(val).first;
   }
 
   template <class InputIterator>

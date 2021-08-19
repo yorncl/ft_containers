@@ -52,6 +52,8 @@ public:
   } _node;
 
   static _node *next(_node *n) {
+    if (!n)
+      return NULL;
     if (n->right) {
       n = n->right;
       while (n->left)
@@ -68,6 +70,8 @@ public:
     return NULL;
   }
   static _node *prev(_node *n) {
+    if (!n)
+      return NULL;
     if (n->left) {
       n = n->left;
       while (n->right)
@@ -348,6 +352,8 @@ public:
   }
 
   _node *first() const {
+    if (!_root)
+      return NULL;
     _node *n = _root;
     while (n->left)
       n = n->left;
@@ -355,6 +361,8 @@ public:
   }
 
   _node *last() const {
+    if (!_root)
+      return NULL;
     _node *n = _root;
     while (n->right)
       n = n->right;
