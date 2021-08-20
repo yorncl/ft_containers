@@ -9,17 +9,15 @@ CONTAINERS_DIR="../"
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )" 
 cd $SCRIPT_DIR # Doing this to avoid having to append the path to each source file
 
-
-RED="\033[0;31m"
-GREEN="\033[0;32m"
-NC="\033[0m"
-
-
 if [[ $? != 0 ]]
 then
     echo "Aborting script"
     exit 1
 fi
+
+RED="\033[0;31m"
+GREEN="\033[0;32m"
+NC="\033[0m"
 
 function hello
 {
@@ -55,7 +53,14 @@ function diff_failed
 function launch_tests
 {
     echo "Launching tests"
-    for dir in tests/*
+    testdirs=""
+    if [[ $# == 1 && -d  tests/$1 ]]
+    then
+	testdirs=tests/$1
+    else
+	testdirs=tests/*
+    fi
+    for dir in $testdirs
     do
       echo $dir
       if [[ $dir == "tests/others" ]]
@@ -131,6 +136,8 @@ then
   if [[ $1 == "single" && $# == 3 && -f "tests/$2/src/$3.cpp" ]]
   then
     single_test $2 $3
+  else
+    launch_tests $1
   fi
 else
   launch_tests
