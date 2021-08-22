@@ -6,12 +6,11 @@ namespace ft
 {
 	template <class T, class Container = ft::vector<T> > class stack
 	{
-		private:
+    public:
 		//Member types
 		typedef Container container_type;
 		typedef typename container_type::value_type value_type;
 		typedef size_t size_type;
-		public:
 
     container_type _ctnr;
 

@@ -144,6 +144,18 @@ namespace ft
   return (first2!=last2);
 }
 
+  template < class InputIterator >
+  size_t itlen(InputIterator first, InputIterator last, REQUIRE_ITER(InputIterator))
+  {
+    size_t n = 0;
+    while (first != last)
+    {
+      first++;
+      n++;
+    }
+    return n;
+  }
+
 	template<typename T>
 	bool isEqual(T& a, T&b) {return a == b;};
 	template<typename T>

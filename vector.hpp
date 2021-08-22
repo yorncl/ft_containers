@@ -138,7 +138,7 @@ namespace ft
 			if (b.size == 0)
 				b.capacity = INIT_CAPACITY;
 			else
-				b.capacity = n * SCALING_FACTOR;
+				b.capacity = n;
 			b.data = blockAllocation(b.capacity);
 			return b;
 		}
@@ -184,12 +184,19 @@ namespace ft
 		// destroy block
 		void destroyBlock(_Block& b)
 		{
-			for (size_t i = 0; i < b.capacity; i++)
+			for (size_t i = 0; i < b.size; i++)
 				arr_alloc.destroy(&_storage.data[i]);
 			arr_alloc.deallocate(b.data, b.capacity * sizeof(T));
 			b.size = 0;
 			b.capacity = 0;
 		}
+
+    void resizeDownBlock(_Block& b, size_t n)
+    {
+			for (size_t i = b.size; i > n; i--)
+				arr_alloc.destroy(&_storage.data[i]);
+      b.size = n;
+    }
 
 
 		public:
@@ -241,7 +248,14 @@ namespace ft
 		// operator=
 		vector& operator= (const vector& x)
 		{
-			copyBlock(x._storage, _storage);
+      if (x._storage.size < _storage.size)
+      {
+        resizeDownBlock(_storage, x._storage.size);
+        for (size_t i = 0; i < _storage.size; i++)
+          _storage.data[i] = x._storage.data[i];
+      } 
+      else
+			  copyBlock(x._storage, _storage); 
 			return *this;
 		}
 
@@ -305,7 +319,7 @@ namespace ft
 				return;
 			else if (n > _storage.size)
 			{
-				reallocateBlock(_storage, n * SCALING_FACTOR);
+				reallocateBlock(_storage, n);
 				_storage.size = n;
 				for (size_t i = old; i < n; i++)
 					_storage.data[i] = val;
@@ -388,23 +402,28 @@ namespace ft
 		template <class InputIterator>
 		void assign (InputIterator first, InputIterator last, REQUIRE_ITER(InputIterator))
 		{
-			size_t n = 0;
-			for (InputIterator i = first; i != last; i++)
-				n++;
-			destroyBlock(_storage);
-			_storage = initBlock(n);
-			for (size_t i = 0; i < n ; i++)
-			{
-				_storage.data[i] = *first;
-				first++;
-			}
+			size_t n = ft::itlen(first, last);
+
+      if (n > _storage.capacity)
+        reallocateBlock(_storage, n);
+      if (n < _storage.capacity)
+        resizeDownBlock(_storage, n);
+      for (size_t i = 0; i < n; i++)
+      {
+
+        _storage.data[i] = *first++;
+      }
+      _storage.size = n;
 		}
 		void assign (size_type n, const value_type& val)
 		{
-			destroyBlock(_storage);
-			_storage = initBlock(n);
-			for (size_t i = 0; i < n ; i++)
-				_storage.data[i] = val;
+      if (n > _storage.capacity)
+        reallocateBlock(_storage, n);
+      if (n < _storage.capacity)
+        resizeDownBlock(_storage, n);
+      for (size_t i = 0; i < n; i++)
+        _storage.data[i] = val;
+      _storage.size = n;
 		}
 
 		// push_back
@@ -415,7 +434,6 @@ namespace ft
 				reallocateBlock(_storage);
 			}
 			_storage.size++;
-			/* std::cout << &_storage.data  << " " << _storage.size - 1 << std::endl; */
 			_storage.data[_storage.size - 1] = val;
 		}
 
@@ -435,111 +453,64 @@ namespace ft
 		}
 		void insert (iterator position, size_type n, const value_type& val)
 		{
-      size_t offset = position._el - _storage.data;
-      _Block newBlock = initBlock(_storage.size + n);
-
-      size_t i = 0;
-      size_t j = 0;
-      while(offset--)
-      {
-        newBlock.data[i] = _storage.data[j];
-        i++;
-        j++;
-      }
+      if (n == 0)
+        return ;
+      size_t offset = position - begin();
+      size_t offset_end = position - begin();
+      resize(_storage.size + n);
+      iterator itdest = end();
+      iterator itsrc = begin() + offset_end;
+      position = begin() + offset;
+      while (itsrc != position)
+        *--itdest = *--itsrc;
       while (n--)
-      {
-        newBlock.data[i] = val;
-        i++;
-      }
-      while(j < _storage.size)
-      {
-        newBlock.data[i] = _storage.data[j];
-        i++;
-        j++;
-      }
-      destroyBlock(_storage);
-      _storage = newBlock;
+        *position++ = val; 
 		}
 		template <class InputIterator>
 		void insert (iterator position, InputIterator first, InputIterator last, REQUIRE_ITER(InputIterator))
 		{
-      size_t offset = position._el - _storage.data;
-      _Block newBlock = initBlock(_storage.size + std::distance(first, last));
-
-      size_t i = 0;
-      size_t j = 0;
-      while(offset--)
-      {
-        newBlock.data[i] = _storage.data[j];
-        i++;
-        j++;
-      }
-      while (first != last)
-      {
-        newBlock.data[i] = *first;
-        i++;
-        first++;
-      }
-      while(j < _storage.size)
-      {
-        newBlock.data[i] = _storage.data[j];
-        i++;
-        j++;
-      }
-      destroyBlock(_storage);
-      _storage = newBlock;
+      size_t n = ft::itlen(first, last);
+      if (n == 0)
+        return ;
+      size_t offset = position - begin();
+      size_t offset_end = position - begin();
+      resize(_storage.size + n);
+      iterator itdest = end();
+      iterator itsrc = begin() + offset_end;
+      position = begin() + offset;
+      while (itsrc != position)
+        *--itdest = *--itsrc;
+      while (n--)
+        *position++ = *first++; 
 		}
 
 		// erase
 		iterator erase (iterator position)
 		{
-			(void) position;
-      _Block b = initBlock(_storage.size - 1);
-      iterator it = begin();
-      size_t i = 0;
-      size_t pos = 0;
+      if (position == end())
+        return end();
+      iterator it = position + 1;
+      iterator copy = position;
       while (it != end())
-      {
-        if (it != position)
-        {
-          b.data[i] = *it; 
-          i++;
-        }
-        else
-          pos = i;
-        it++;
-      }
-      destroyBlock(_storage);
-      _storage = b;
-			return iterator(_storage.data + pos + 1);
+        *position++ = *it++;
+      resizeDownBlock(_storage, _storage.size - 1);
+      return copy; 
 		}
 
 		iterator erase (iterator first, iterator last)
 		{
-      size_t size = last._el - first._el;
-      if (size >= _storage.size )
+      iterator copy = first;
+      size_type n = ft::itlen(first, last);
+      if (n == 0)
+        return end();
+      if (last != end())
       {
-        resize(0);
-        return begin();
+        iterator it = last;
+        while(it != end())
+          *first++ = *it++;
       }
-      _Block b = initBlock(_storage.size - size);
-      iterator it = begin();
-      size_type i = 0;
-      while (it != first)
-      {
-        b.data[i] = *it;
-        i++;
-      } 
-      it = last;
-      first = last;
-      while(it != end())
-      {
-        b.data[i] = *it;
-        i++;
-      } 
-      destroyBlock(_storage);
-      _storage = b;
-			return first; 
+      resizeDownBlock(_storage, _storage.size - n);
+      return copy;
 		}
 
 		// swap
@@ -603,7 +574,7 @@ namespace ft
 	template <class T, class Alloc>
 	bool operator> (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
 	{
-    return !(lhs < rhs);
+    return !(lhs < rhs) && lhs != rhs;
 	}
 	template <class T, class Alloc>
 	bool operator>= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)

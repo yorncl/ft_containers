@@ -40,7 +40,7 @@ namespace ft
 		_Self& operator=(const _Self& other) {_it = other._it; return *this;}
 		reference operator*() const {return *_it;}
 		Iter operator->() const {return _it;}
-		reference operator[] (int i) { return _it[i]; }
+		reference operator[] (int i) { return _it[-i]; }
 		~reverse_iterator(){}
 
     Iter base() { return _it; };
