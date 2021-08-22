@@ -25,7 +25,7 @@ namespace ft
 		typedef T*					pointer;
 		typedef T&					reference;
     typedef std::random_access_iterator_tag iterator_category;
-
+    
 		pointer _el;
 		
 		explicit _VectorIterator(){_el = NULL;}
@@ -38,20 +38,21 @@ namespace ft
 		_Self& operator--() {_el--; return *this;}
 		_Self& operator+=(int x) {_el += x; return *this;}
 		_Self& operator-=(int x) {_el -= x; return *this;}
-		_Self operator+(int a) { return _Self(_el + a); }
-		_Self operator-(int a) { return _Self(_el - a); }
-		difference_type operator-(_Self a) { return _el - a._el; }
+		_Self operator+(int a) const { return _Self(_el + a); }
+		_Self operator-(int a) const { return _Self(_el - a); }
+		difference_type operator-(_Self a) const { return _el - a._el; }
 		bool operator==(_Self other) const {return _el == other._el;}
 		bool operator!=(_Self other) const {return _el != other._el;}
 		bool operator<(_Self other) const {return _el < other._el;}
 		bool operator>(_Self other) const {return _el > other._el;}
 		bool operator<=(_Self other) const {return _el <= other._el;}
 		bool operator>=(_Self other) const {return _el >= other._el;}
+		reference operator[] (int i) { return _el[i]; }
 		reference operator*() const {return *_el;}
 		pointer operator->() const {return _el;}
 		~_VectorIterator(){}
 	};
-		// reference operator+(int) const {return *_el;}
+
 
 	template < class T > class _ConstVectorIterator
 	{	
@@ -75,15 +76,16 @@ namespace ft
 		_Self& operator--() {_el--; return *this;}
 		_Self& operator+=(int x) {_el += x; return *this;}
 		_Self& operator-=(int x) {_el -= x; return *this;}
-		_Self operator+(int a) {return _Self(_el + a);}
-		_Self operator-(int a) {return _Self(_el - a);}
-		difference_type operator-(_Self a) { return _el - a._el; }
+		_Self operator+(int a) const {return _Self(_el + a);}
+		_Self operator-(int a) const {return _Self(_el - a);}
+		difference_type operator-(_Self a) const { return _el - a._el; }
 		bool operator==(_Self other) const {return _el == other._el;}
 		bool operator!=(_Self other) const {return _el != other._el;}
 		bool operator<(_Self other) const {return _el < other._el;}
 		bool operator>(_Self other) const {return _el > other._el;}
 		bool operator<=(_Self other) const {return _el <= other._el;}
 		bool operator>=(_Self other) const {return _el >= other._el;}
+		reference operator[] (int i) { return _el[i]; }
 		reference operator*() const {return *_el;}
 		pointer operator->() const {return _el;}
 		~_ConstVectorIterator(){}
@@ -102,8 +104,8 @@ namespace ft
 		typedef typename allocator_type::const_pointer const_pointer;
 		typedef _VectorIterator<T> iterator;
 		typedef _ConstVectorIterator<T> const_iterator;
-		typedef ft::reverse_iterator<_Self> reverse_iterator;
-		typedef ft::const_reverse_iterator<_Self> const_reverse_iterator;
+		typedef ft::reverse_iterator<iterator> reverse_iterator;
+		typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 		typedef typename std::ptrdiff_t difference_type;
 		typedef size_t size_type;
 
@@ -612,4 +614,9 @@ namespace ft
 	}
 } // namespace ft
 
+template<class T>
+ft::_VectorIterator<T>operator+(int a, ft::_VectorIterator<T>& it) { return it + a; }
+
+template<class T>
+ft::_ConstVectorIterator<T>operator+(int a, ft::_ConstVectorIterator<T>& it) { return it + a; }
 #endif //VECTOR_HPP
