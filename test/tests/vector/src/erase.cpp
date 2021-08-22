@@ -11,11 +11,15 @@ int main ()
 
   // erase the 6th element
   myvector.erase (myvector.begin()+5);
+  std::cout << "myvector contains 1 :";
+  for (unsigned i=0; i<myvector.size(); ++i)
+    std::cout << ' ' << myvector[i];
+  std::cout << '\n';
 
   // erase the first 3 elements:
   myvector.erase (myvector.begin(),myvector.begin()+3);
 
-  std::cout << "myvector contains:";
+  std::cout << "myvector contains 2 :";
   for (unsigned i=0; i<myvector.size(); ++i)
     std::cout << ' ' << myvector[i];
   std::cout << '\n';

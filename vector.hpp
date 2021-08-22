@@ -14,23 +14,23 @@
 namespace ft
 {
 
-	template < class T > class _ConstVectorIterator;
+	template < class T, class Distance = std::ptrdiff_t, class Pointer = const T*, class Reference = const T& > class _ConstVectorIterator;
 
-	template < class T > class _VectorIterator
+	template < class T, class Distance = std::ptrdiff_t, class Pointer = T*, class Reference = T& > class _VectorIterator
 	{
 		public:
-		typedef _VectorIterator<T>	_Self;
-		typedef std::ptrdiff_t		difference_type;
-		typedef T					value_type;
-		typedef T*					pointer;
-		typedef T&					reference;
+		typedef _VectorIterator<T, Distance, Pointer, Reference>	_Self;
+		typedef Distance		        difference_type;
+		typedef T					          value_type;
+		typedef Pointer             pointer;
+		typedef Reference		        reference;
     typedef std::random_access_iterator_tag iterator_category;
     
 		pointer _el;
 		
 		explicit _VectorIterator(){_el = NULL;}
 		explicit _VectorIterator(const pointer p){_el = p;}
-		_VectorIterator(const _VectorIterator<T> &it){_el = it._el;}
+		_VectorIterator(const _Self &it){_el = it._el;}
 		_VectorIterator(const _ConstVectorIterator<T> &it){_el = const_cast<pointer>(it._el);}
 		_Self operator++(int) {_Self tmp = *this; _el++ ; return tmp;}
 		_Self operator--(int) {_Self tmp = *this; _el--; return tmp;}
@@ -54,14 +54,14 @@ namespace ft
 	};
 
 
-	template < class T > class _ConstVectorIterator
+	template < class T, class Distance, class Pointer, class Reference > class _ConstVectorIterator
 	{	
 		public:
-		typedef _ConstVectorIterator<T>	_Self;
-		typedef std::ptrdiff_t		difference_type;
-		typedef const T					value_type;
-		typedef const T*					pointer;
-		typedef const T&					reference;
+		typedef _ConstVectorIterator<T, Distance, Pointer, Reference>	_Self;
+		typedef Distance		        difference_type;
+		typedef T					          value_type;
+		typedef Pointer             pointer;
+		typedef Reference		        reference;
     typedef std::random_access_iterator_tag iterator_category;
 
 		pointer _el;
@@ -69,7 +69,7 @@ namespace ft
 		explicit _ConstVectorIterator(){_el = NULL;}
 		explicit _ConstVectorIterator(pointer p){_el = p;}
 		_ConstVectorIterator(const _VectorIterator<T> &it){_el = it._el;}
-		_ConstVectorIterator(const _ConstVectorIterator<T> &it){_el = it._el;}
+		_ConstVectorIterator(const _Self &it){_el = it._el;}
 		_Self operator++(int) {_Self tmp = *this; _el++ ; return tmp;}
 		_Self operator--(int) {_Self tmp = *this; _el--; return tmp;}
 		_Self& operator++() {_el++; return *this;}
@@ -102,8 +102,8 @@ namespace ft
 		typedef typename allocator_type::const_reference const_reference;
 		typedef typename allocator_type::pointer pointer;
 		typedef typename allocator_type::const_pointer const_pointer;
-		typedef _VectorIterator<T> iterator;
-		typedef _ConstVectorIterator<T> const_iterator;
+		typedef _VectorIterator<T, std::ptrdiff_t, pointer, reference> iterator;
+		typedef _ConstVectorIterator<T, std::ptrdiff_t, const_pointer, const_reference> const_iterator;
 		typedef ft::reverse_iterator<iterator> reverse_iterator;
 		typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 		typedef typename std::ptrdiff_t difference_type;
@@ -517,26 +517,29 @@ namespace ft
 		iterator erase (iterator first, iterator last)
 		{
       size_t size = last._el - first._el;
+      if (size >= _storage.size )
+      {
+        resize(0);
+        return begin();
+      }
       _Block b = initBlock(_storage.size - size);
-      size_t i = 0;
       iterator it = begin();
-      iterator pos = it;
+      size_type i = 0;
       while (it != first)
       {
         b.data[i] = *it;
         i++;
-      }
-      pos = it + 1;
+      } 
       it = last;
+      first = last;
       while(it != end())
       {
         b.data[i] = *it;
         i++;
-        it++;
-      }
+      } 
       destroyBlock(_storage);
       _storage = b;
-			return pos; 
+			return first; 
 		}
 
 		// swap
