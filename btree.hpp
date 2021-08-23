@@ -39,7 +39,7 @@ public:
       left = NULL;
       right = NULL;
     }
-    s_node(struct s_node &src) {
+    s_node(const struct s_node &src) {
       parent = src.parent;
       left = src.left;
       right = src.right;
@@ -122,7 +122,7 @@ public:
       return *this;
     }
     _Self &operator--() {
-      _n = preve(_n);
+      _n = prev(_n);
       return *this;
     }
     bool operator==(_Self other) const { return _n == other._n; }
@@ -149,20 +149,20 @@ public:
     _ConstBtreeIterator(const _ConstBtreeIterator &it) { _n = it._n; }
     _Self operator++(int) {
       _Self tmp = *this;
-      _n = next(_n);
+      _n = const_cast<const _node*>(next(const_cast<_node*>(_n)));
       return tmp;
     }
     _Self operator--(int) {
       _Self tmp = *this;
-      _n = prev(_n);
+      _n = const_cast<const _node*>(prev(const_cast<_node*>(_n)));
       return tmp;
     }
     _Self &operator++() {
-      _n = next(_n);
+      _n = const_cast<const _node*>(next(const_cast<_node*>(_n)));
       return *this;
     }
     _Self &operator--() {
-      _n = preve(_n);
+      _n = const_cast<const _node*>(prev(const_cast<_node*>(_n)));
       return *this;
     }
     bool operator==(_Self other) const { return _n == other._n; }
@@ -195,6 +195,7 @@ public:
       cpy->right = _deep_copy(target->right);
       cpy->right->parent = cpy;
     }
+    std::cout << cpy << std::endl
     return cpy;
   }
 

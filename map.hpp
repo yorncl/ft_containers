@@ -28,8 +28,6 @@ public:
   typedef typename allocator_type::const_reference const_reference;
   typedef typename allocator_type::pointer pointer;
   typedef typename allocator_type::const_pointer const_pointer;
-  typedef ft::reverse_iterator<iterator> reverse_iterator;
-  typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
   // Comparison member
   class value_compare {
 
@@ -52,6 +50,8 @@ public:
   typedef typename tree_type::_node *node_pointer;
   typedef typename tree_type::_BtreeIterator iterator;
   typedef typename tree_type::_ConstBtreeIterator const_iterator;
+  typedef ft::reverse_iterator<iterator> reverse_iterator;
+  typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
   typedef
       typename ft::iterator_traits<iterator>::difference_type difference_type;
   typedef difference_type size_type;
@@ -95,7 +95,7 @@ public:
 
   // begin
   iterator begin() { return iterator(_tree.first()); }
-  const_iterator begin() const { return const_iterator(_tree.begin()); }
+  const_iterator begin() const { return const_iterator(_tree.first()); }
 
   // end
   iterator end() {
