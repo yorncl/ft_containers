@@ -14,9 +14,33 @@
 namespace ft
 {
 
+  template <class Pointer>
+  class _VectorIteratorBase
+  {
+
+    public:
+    typedef _VectorIteratorBase<Pointer> _Self;
+    Pointer _el;
+
+    template<class U>
+		bool operator==(_VectorIteratorBase<U> other) const {return _el == other._el;}
+    template<class U>
+		bool operator!=(_VectorIteratorBase<U> other) const {return _el != other._el;}
+    template<class U>
+		bool operator<(_VectorIteratorBase<U> other) const {return _el < other._el;}
+    template<class U>
+		bool operator>(_VectorIteratorBase<U> other) const {return _el > other._el;}
+    template<class U>
+		bool operator<=(_VectorIteratorBase<U> other) const {return _el <= other._el;}
+    template<class U>
+		bool operator>=(_VectorIteratorBase<U> other) const {return _el >= other._el;}
+    virtual ~_VectorIteratorBase() {}
+  };
+
 	template < class T, class Distance = std::ptrdiff_t, class Pointer = const T*, class Reference = const T& > class _ConstVectorIterator;
 
-	template < class T, class Distance = std::ptrdiff_t, class Pointer = T*, class Reference = T& > class _VectorIterator
+	template < class T, class Distance = std::ptrdiff_t, class Pointer = T*, class Reference = T& > class
+  _VectorIterator : public _VectorIteratorBase<Pointer>
 	{
 		public:
 		typedef _VectorIterator<T, Distance, Pointer, Reference>	_Self;
@@ -24,37 +48,30 @@ namespace ft
 		typedef T					          value_type;
 		typedef Pointer             pointer;
 		typedef Reference		        reference;
-    typedef std::random_access_iterator_tag iterator_category;
-    
-		pointer _el;
+    typedef std::random_access_iterator_tag iterator_category; 
 		
-		explicit _VectorIterator(){_el = NULL;}
-		explicit _VectorIterator(const pointer p){_el = p;}
-		_VectorIterator(const _Self &it){_el = it._el;}
-		_VectorIterator(const _ConstVectorIterator<T> &it){_el = const_cast<pointer>(it._el);}
-		_Self operator++(int) {_Self tmp = *this; _el++ ; return tmp;}
-		_Self operator--(int) {_Self tmp = *this; _el--; return tmp;}
-		_Self& operator++() {_el++; return *this;}
-		_Self& operator--() {_el--; return *this;}
-		_Self& operator+=(int x) {_el += x; return *this;}
-		_Self& operator-=(int x) {_el -= x; return *this;}
-		_Self operator+(int a) const { return _Self(_el + a); }
-		_Self operator-(int a) const { return _Self(_el - a); }
-		difference_type operator-(_Self a) const { return _el - a._el; }
-		bool operator==(_Self other) const {return _el == other._el;}
-		bool operator!=(_Self other) const {return _el != other._el;}
-		bool operator<(_Self other) const {return _el < other._el;}
-		bool operator>(_Self other) const {return _el > other._el;}
-		bool operator<=(_Self other) const {return _el <= other._el;}
-		bool operator>=(_Self other) const {return _el >= other._el;}
-		reference operator[] (int i) { return _el[i]; }
-		reference operator*() const {return *_el;}
-		pointer operator->() const {return _el;}
+		explicit _VectorIterator(){this->_el = NULL;}
+		explicit _VectorIterator(const pointer p){this->_el = p;}
+		_VectorIterator(const _Self &it){this->_el = it._el;}
+		/* _VectorIterator(const _ConstVectorIterator<T> &it){_el = const_cast<pointer>(it._el);} */
+		_Self operator++(int) {_Self tmp = *this; this->_el++ ; return tmp;}
+		_Self operator--(int) {_Self tmp = *this; this->_el--; return tmp;}
+		_Self& operator++() {this->_el++; return *this;}
+		_Self& operator--() {this->_el--; return *this;}
+		_Self& operator+=(int x) {this->_el += x; return *this;}
+		_Self& operator-=(int x) {this->_el -= x; return *this;}
+		_Self operator+(int a) const { return _Self(this->_el + a); }
+		_Self operator-(int a) const { return _Self(this->_el - a); }
+		difference_type operator-(_Self a) const { return this->_el - a._el; }
+		reference operator[] (int i) { return this->_el[i]; }
+		reference operator*() const {return *this->_el;}
+		pointer operator->() const {return this->_el;}
 		~_VectorIterator(){}
 	};
 
 
-	template < class T, class Distance, class Pointer, class Reference > class _ConstVectorIterator
+	template < class T, class Distance, class Pointer, class Reference >
+  class _ConstVectorIterator : public _VectorIteratorBase<Pointer>
 	{	
 		public:
 		typedef _ConstVectorIterator<T, Distance, Pointer, Reference>	_Self;
@@ -63,33 +80,26 @@ namespace ft
 		typedef Pointer             pointer;
 		typedef Reference		        reference;
     typedef std::random_access_iterator_tag iterator_category;
-
-		pointer _el;
-		
-		explicit _ConstVectorIterator(){_el = NULL;}
-		explicit _ConstVectorIterator(pointer p){_el = p;}
-		_ConstVectorIterator(const _VectorIterator<T> &it){_el = it._el;}
-		_ConstVectorIterator(const _Self &it){_el = it._el;}
-		_Self operator++(int) {_Self tmp = *this; _el++ ; return tmp;}
-		_Self operator--(int) {_Self tmp = *this; _el--; return tmp;}
-		_Self& operator++() {_el++; return *this;}
-		_Self& operator--() {_el--; return *this;}
-		_Self& operator+=(int x) {_el += x; return *this;}
-		_Self& operator-=(int x) {_el -= x; return *this;}
-		_Self operator+(int a) const {return _Self(_el + a);}
-		_Self operator-(int a) const {return _Self(_el - a);}
-		difference_type operator-(_Self a) const { return _el - a._el; }
-		bool operator==(_Self other) const {return _el == other._el;}
-		bool operator!=(_Self other) const {return _el != other._el;}
-		bool operator<(_Self other) const {return _el < other._el;}
-		bool operator>(_Self other) const {return _el > other._el;}
-		bool operator<=(_Self other) const {return _el <= other._el;}
-		bool operator>=(_Self other) const {return _el >= other._el;}
-		reference operator[] (int i) { return _el[i]; }
-		reference operator*() const {return *_el;}
-		pointer operator->() const {return _el;}
+	
+		explicit _ConstVectorIterator(){this->_el = NULL;}
+		explicit _ConstVectorIterator(pointer p){this->_el = p;}
+		_ConstVectorIterator(const _VectorIterator<T> &it){this->_el = it._el;}
+		_ConstVectorIterator(const _Self &it){this->_el = it._el;}
+		_Self operator++(int) {_Self tmp = *this; this->_el++ ; return tmp;}
+		_Self operator--(int) {_Self tmp = *this; this->_el--; return tmp;}
+		_Self& operator++() {this->_el++; return *this;}
+		_Self& operator--() {this->_el--; return *this;}
+		_Self& operator+=(int x) {this->_el += x; return *this;}
+		_Self& operator-=(int x) {this->_el -= x; return *this;}
+		_Self operator+(int a) const {return _Self(this->_el + a);}
+		_Self operator-(int a) const {return _Self(this->_el - a);}
+		difference_type operator-(_Self a) const { return this->_el - a._el; }
+		reference operator[] (int i) { return this->_el[i]; }
+		reference operator*() const {return *this->_el;}
+		pointer operator->() const {return this->_el;}
 		~_ConstVectorIterator(){}
 	};
+	
 
 	template < class T, class Alloc = std::allocator<T> > class vector // generic template
 	{
@@ -540,8 +550,8 @@ namespace ft
 	{
 		if (lhs.size() != rhs.size())
 			return false;
-		typename vector<T,Alloc>::iterator it1 = lhs.begin();
-		typename vector<T,Alloc>::iterator it2 = rhs.begin();
+		typename vector<T,Alloc>::const_iterator it1 = lhs.begin();
+		typename vector<T,Alloc>::const_iterator it2 = rhs.begin();
 		while (it1 != lhs.end() && it2 != rhs.end())
 		{
 			if (*it1 != *it2)

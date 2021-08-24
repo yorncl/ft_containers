@@ -31,12 +31,18 @@ namespace ft
 		_Self& operator+=(difference_type x) {_it.operator-=(x); return *this;}
 		_Self& operator-=(difference_type x) {_it.operator+=(x); return *this;}
 		difference_type operator-(_Self it) const { return it._it.operator-(_it); }
-		bool operator==(_Self other) const {return _it.operator==(other._it);}
-		bool operator!=(_Self other) const {return _it.operator!=(other._it);}
-		bool operator<(_Self other) const {return _it.operator<(other._it);}
-		bool operator>(_Self other) const {return _it.operator>(other._it);}
-    bool operator<=(_Self other) const {return _it.operator<=(other._it);}
-    bool operator>=(_Self other) const {return _it.operator>=(other._it);}
+    template<class U>
+		bool operator==(const reverse_iterator<U> other) const {return _it.operator==(other._it);}
+    template<class U>
+		bool operator!=(const reverse_iterator<U> other) const {return _it.operator!=(other._it);}
+    template<class U>
+		bool operator<(const reverse_iterator<U> other) const {return _it.operator<(other._it);}
+    template<class U>
+		bool operator>(const reverse_iterator<U> other) const {return _it.operator>(other._it);}
+    template<class U>
+    bool operator<=(const reverse_iterator<U> other) const {return _it.operator<=(other._it);}
+    template<class U>
+    bool operator>=(const reverse_iterator<U> other) const {return _it.operator>=(other._it);}
 		_Self& operator=(const _Self& other) {_it.operator=(other._it); return *this;}
 		reference operator*() const {return (Iter(_it)).operator*();}
 		pointer operator->() const {return &this->operator*();}
