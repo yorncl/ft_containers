@@ -53,8 +53,7 @@ public:
   typedef typename tree_type::_ConstBtreeIterator const_iterator;
   typedef ft::reverse_iterator<iterator> reverse_iterator;
   typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
-  typedef
-      typename ft::iterator_traits<iterator>::difference_type difference_type;
+  typedef std::ptrdiff_t difference_type;
   typedef unsigned long size_type;
 
   key_compare _comp;
@@ -258,12 +257,16 @@ public:
   // upper_bound
   iterator upper_bound(const key_type &k) {
     iterator it = lower_bound(k);
+    if (it == begin() && _comp(k, it->first))
+      return it;
     if (it != end())
       it++;
     return it; // technically it's not end(), but it's the same it terms of the pointer value 
   }
   const_iterator upper_bound(const key_type &k) const {
     const_iterator it = lower_bound(k);
+    if (it == begin() && _comp(k, it->first))
+      return it;
     if (it != end())
       it++;
     return it; // technically it's not end(), but it's the same it terms of the pointer value 
@@ -271,26 +274,10 @@ public:
 
   // equal_range
   ft::pair<const_iterator, const_iterator> equal_range(const key_type &k) const {
-    const_iterator it = begin();
-    const_iterator r1, r2;
-    while (it != end() && _comp(it->first, k))
-      it++;
-    if (it == end())
-      return ft::make_pair(const_iterator(NULL, &_tree), const_iterator(NULL, &_tree));
-    r1 = it;
-    r2 = ++it;
-    return ft::make_pair(r1, r2);
+    return ft::make_pair(lower_bound(k), upper_bound(k));
   }
   ft::pair<iterator, iterator> equal_range(const key_type &k) {
-    iterator it = begin();
-    iterator r1, r2;
-    while (it != end() && _comp(it->first, k))
-      it++;
-    if (it == end())
-      return ft::make_pair(iterator(NULL, &_tree), iterator(NULL, &_tree));
-    r1 = it;
-    r2 = ++it;
-    return ft::make_pair(r1, r2);
+    return ft::make_pair(lower_bound(k), upper_bound(k));
   }
 };
   // operators

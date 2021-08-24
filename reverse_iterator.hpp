@@ -49,7 +49,7 @@ namespace ft
 		reference operator[] (int i) { return _it[-i]; }
 		~reverse_iterator(){}
 
-    Iter base() { return (_it); };
+    Iter base() { return Iter(_it); };
 	};
 
 template<class T>

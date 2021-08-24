@@ -332,8 +332,6 @@ public:
     _node **next;
     while (1) {
       if (equal(*n->_data, *curr->_data) && _unique == true) {
-        replace_node(curr, n);
-        _destroy_single(curr);
         return;
       }
       if (_cmp(*n->_data, *curr->_data)) // go left cause n comes before curr
@@ -402,25 +400,17 @@ public:
       return;
     // Searching the node to remove
     _node *n = _root;
-    std::cout << "data from root " << n->_data->first << std::endl;
     while (n && !equal(data, *n->_data)) {
-      std::cout << "Node looping " << std::endl;
       if (_cmp(data, *n->_data))
       {
-
         n = n->left;
-        std::cout << "Left" << std::endl;
       }
       else
       {
-
         n = n->right;
-        std::cout << "Right" << std::endl;
       }
-      std::cout << n->_data->first << std::endl;
     }
 
-    std::cout << "Values  " << n << " vs " << _root << std::endl; 
     // if n is null then no matching node encountered
     if (n == NULL)
       return;
@@ -444,8 +434,8 @@ public:
         n->right->parent = tmp;
       }
       tmp->left = n->left;
-      tmp->parent = n->parent;
       n->left->parent = tmp;
+      transplant(n, tmp) ;
       if (n == _root)
         _root = tmp;
     }
