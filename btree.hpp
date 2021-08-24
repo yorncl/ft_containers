@@ -51,9 +51,9 @@ public:
     pointer _data;
   } _node;
 
-  static _node *next(_node *n) {
+  static _node *next(_node *n, const btree* tree) {
     if (!n)
-      return NULL;
+      return tree->first();
     if (n->right) {
       n = n->right;
       while (n->left)
@@ -69,9 +69,9 @@ public:
     }
     return NULL;
   }
-  static _node *prev(_node *n) {
+  static _node *prev(_node *n, const btree* tree) {
     if (!n)
-      return NULL;
+      return tree->last();
     if (n->left) {
       n = n->left;
       while (n->right)
@@ -88,51 +88,69 @@ public:
     return NULL;
   }
 
-  class _ConstBtreeIterator;
+  
+  template<class NodePointer, class TreePointer>
+  class _BtreeIteratorBase
+  {
 
-  class _BtreeIterator {
+    public:
+
+    NodePointer _n;
+    TreePointer _tree;
+
+    typedef std::bidirectional_iterator_tag iterator_category;
+
+    template<class U, class V>
+		bool operator==(_BtreeIteratorBase<U, V> other) const {return _n == other._n;}
+    template<class U, class V>
+		bool operator!=(_BtreeIteratorBase<U, V> other) const {return _n != other._n;}
+    /* template<class U, class V> */
+		/* bool operator<(_BtreeIteratorBase<U, V> other) const {return _n < other._n;} */
+		/*     template<class U, class V> */
+		/* bool operator>(_BtreeIteratorBase<U, V> other) const {return _n > other._n;} */
+		/*     template<class U, class V> */
+		/* bool operator<=(_BtreeIteratorBase<U, V> other) const {return _n <= other._n;} */
+		/*     template<class U, class V> */
+		/* bool operator>=(_BtreeIteratorBase<U, V> other) const {return _n >= other._n;} */
+    virtual ~_BtreeIteratorBase() {}
+  };
+
+  class _BtreeIterator : public _BtreeIteratorBase<_node*, btree*> {
   public:
     typedef _BtreeIterator _Self;
     typedef std::ptrdiff_t difference_type;
     typedef T value_type;
     typedef T *pointer;
     typedef T &reference;
-    typedef std::bidirectional_iterator_tag iterator_category;
 
-    _node *_n;
 
-    _BtreeIterator() { _n = NULL; }
-    _BtreeIterator(const _node *p) { _n = const_cast<_node*>(p); }
-    _BtreeIterator(const _BtreeIterator &it) { _n = it._n; }
-    _BtreeIterator(const _ConstBtreeIterator &it) {
-      _n = const_cast<_node *>(it._n);
-    }
+    _BtreeIterator() { this->_n = NULL; this->_tree = NULL; }
+    _BtreeIterator(const _node *p, const btree* tree) { this->_n = const_cast<_node*>(p); this->_tree = const_cast<btree*>(tree); }
+    _BtreeIterator(const _BtreeIterator &it) { this->_n = it._n; this->_tree = it._tree; }
     _Self operator++(int) {
       _Self tmp = *this;
-      _n = next(_n);
+      this->_n = next(this->_n, this->_tree);
       return tmp;
     }
     _Self operator--(int) {
       _Self tmp = *this;
-      _n = prev(_n);
+      this->_n = prev(this->_n, this->_tree);
       return tmp;
     }
     _Self &operator++() {
-      _n = next(_n);
+      this->_n = next(this->_n, this->_tree);
       return *this;
     }
     _Self &operator--() {
-      _n = prev(_n);
+      this->_n = prev(this->_n, this->_tree);
       return *this;
     }
-    bool operator==(_Self other) const { return _n == other._n; }
-    bool operator!=(_Self other) const { return _n != other._n; }
-    reference operator*() const { return *_n->_data; }
-    pointer operator->() const { return _n->_data; }
+    reference operator*() const { return *this->_n->_data; }
+    pointer operator->() const { return this->_n->_data; }
     ~_BtreeIterator() {}
   };
 
-  class _ConstBtreeIterator {
+  class _ConstBtreeIterator : public _BtreeIteratorBase<const _node*, const btree*> {
   public:
     typedef _ConstBtreeIterator _Self;
     typedef std::ptrdiff_t difference_type;
@@ -141,34 +159,30 @@ public:
     typedef const T &reference;
     typedef std::bidirectional_iterator_tag iterator_category;
 
-    const _node *_n;
-
-    _ConstBtreeIterator() { _n = NULL; }
-    _ConstBtreeIterator(const _node *p) { _n = p; }
-    _ConstBtreeIterator(const _BtreeIterator &it) { _n = it._n; }
-    _ConstBtreeIterator(const _ConstBtreeIterator &it) { _n = it._n; }
+    _ConstBtreeIterator() { this->_n = NULL; this->_tree = NULL; }
+    _ConstBtreeIterator(const _node *p, const btree* tree) { this->_n = p; this->_tree = const_cast<const btree*>(tree);}
+    _ConstBtreeIterator(const _BtreeIterator &it) { this->_n = it._n; this->_tree = it._tree;}
+    _ConstBtreeIterator(const _ConstBtreeIterator &it) { this->_n = it._n; this->_tree = it._tree;}
     _Self operator++(int) {
       _Self tmp = *this;
-      _n = const_cast<const _node*>(next(const_cast<_node*>(_n)));
+      this->_n = const_cast<const _node*>(next(const_cast<_node*>(this->_n), this->_tree));
       return tmp;
     }
     _Self operator--(int) {
       _Self tmp = *this;
-      _n = const_cast<const _node*>(prev(const_cast<_node*>(_n)));
+      this->_n = const_cast<const _node*>(prev(const_cast<_node*>(this->_n), this->_tree));
       return tmp;
     }
     _Self &operator++() {
-      _n = const_cast<const _node*>(next(const_cast<_node*>(_n)));
+      this->_n = const_cast<const _node*>(next(const_cast<_node*>(this->_n), this->_tree));
       return *this;
     }
     _Self &operator--() {
-      _n = const_cast<const _node*>(prev(const_cast<_node*>(_n)));
+      this->_n = const_cast<const _node*>(prev(const_cast<_node*>(this->_n), this->_tree));
       return *this;
     }
-    bool operator==(_Self other) const { return _n == other._n; }
-    bool operator!=(_Self other) const { return _n != other._n; }
-    reference operator*() const { return *_n->_data; }
-    pointer operator->() const { return _n->_data; }
+    reference operator*() const { return *this->_n->_data; }
+    pointer operator->() const { return this->_n->_data; }
     ~_ConstBtreeIterator() {}
   };
 
@@ -195,7 +209,6 @@ public:
       cpy->right = _deep_copy(target->right);
       cpy->right->parent = cpy;
     }
-    std::cout << cpy << std::endl
     return cpy;
   }
 
@@ -339,7 +352,7 @@ public:
       return;
   }
 
-  _node *search_node(_node *root, T &data) {
+  _node *search_node(_node *root, T &data) const {
 
     if (!root)
       return NULL;
@@ -389,13 +402,25 @@ public:
       return;
     // Searching the node to remove
     _node *n = _root;
+    std::cout << "data from root " << n->_data->first << std::endl;
     while (n && !equal(data, *n->_data)) {
+      std::cout << "Node looping " << std::endl;
       if (_cmp(data, *n->_data))
+      {
+
         n = n->left;
+        std::cout << "Left" << std::endl;
+      }
       else
+      {
+
         n = n->right;
+        std::cout << "Right" << std::endl;
+      }
+      std::cout << n->_data->first << std::endl;
     }
 
+    std::cout << "Values  " << n << " vs " << _root << std::endl; 
     // if n is null then no matching node encountered
     if (n == NULL)
       return;

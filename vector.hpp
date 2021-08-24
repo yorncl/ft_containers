@@ -336,12 +336,13 @@ namespace ft
       } 
 			else
 			{
-        if (n <= _storage.capacity)
-          ;
-        if (n <= _storage.size * SCALING_FACTOR)
-          reserve(_storage.size * SCALING_FACTOR);
-        else
-          reserve(n);
+        if (n > _storage.capacity)
+        {
+          if (n <= _storage.size * SCALING_FACTOR)
+            reserve(_storage.size * SCALING_FACTOR);
+          else
+            reserve(n);
+        }
 				_storage.size = n;
 				for (size_t i = old; i < n; i++)
 					arr_alloc.construct(&_storage.data[i], val);

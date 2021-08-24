@@ -115,7 +115,6 @@ namespace ft
     typedef T1 first_type;
     typedef T2 second_type;
   };
-
   template <class T1, class T2>
   struct pair<T1, T2> make_pair(T1 first, T2 second)
   {
@@ -123,12 +122,29 @@ namespace ft
     return pair;
   }
 
+  template <class T1, class T2>
+  bool operator== (const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs)
+  { return lhs.first==rhs.first && lhs.second==rhs.second; }
 
-  template<class T1, class T2>
-  bool operator==(struct pair<T1, T2> p1, struct pair<T1, T2> p2)
-  {
-    return p1.first == p2.first && p1.second == p2.second;
-  }
+  template <class T1, class T2>
+  bool operator!= (const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs)
+  { return !(lhs==rhs); }
+
+  template <class T1, class T2>
+  bool operator<  (const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs)
+  { return lhs.first<rhs.first || (!(rhs.first<lhs.first) && lhs.second<rhs.second); }
+
+  template <class T1, class T2>
+  bool operator<= (const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs)
+  { return !(rhs<lhs); }
+
+  template <class T1, class T2>
+  bool operator>  (const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs)
+  { return rhs<lhs; }
+
+  template <class T1, class T2>
+  bool operator>= (const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs)
+  { return !(lhs<rhs); }
 
 
   template <class InputIterator1, class InputIterator2>

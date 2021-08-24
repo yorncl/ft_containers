@@ -48,13 +48,14 @@ public:
 
   typedef ft::btree<value_type, value_compare> tree_type;
   typedef typename tree_type::_node *node_pointer;
+  typedef typename tree_type::_node node_type;
   typedef typename tree_type::_BtreeIterator iterator;
   typedef typename tree_type::_ConstBtreeIterator const_iterator;
   typedef ft::reverse_iterator<iterator> reverse_iterator;
   typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
   typedef
       typename ft::iterator_traits<iterator>::difference_type difference_type;
-  typedef difference_type size_type;
+  typedef unsigned long size_type;
 
   key_compare _comp;
   allocator_type _alloc;
@@ -80,7 +81,6 @@ public:
       _tree.insert(pair);
       first++;
     }
-    _tree = tree_type(true, _alloc);
   }
   map(const map &x) { _tree = x._tree; }
 
@@ -94,28 +94,28 @@ public:
   }
 
   // begin
-  iterator begin() { return iterator(_tree.first()); }
-  const_iterator begin() const { return const_iterator(_tree.first()); }
+  iterator begin() { return iterator(_tree.first(), &_tree); }
+  const_iterator begin() const { return const_iterator(_tree.first(), &_tree); }
 
   // end
   iterator end() {
-    iterator it(_tree.last());
+    iterator it(_tree.last(), &_tree);
     it++;
     return it;
   }
   const_iterator end() const {
-    const_iterator it(_tree.last());
+    const_iterator it(_tree.last(), &_tree);
     it++;
     return it;
   }
 
   // rbegin
   reverse_iterator rbegin() {
-    iterator it = iterator(_tree.last());
+    iterator it = iterator(_tree.last(), &_tree);
     return reverse_iterator(it);
   }
   const_reverse_iterator rbegin() const {
-    const_iterator it = const_iterator(_tree.last());
+    const_iterator it = const_iterator(_tree.last(), &_tree);
     return const_reverse_iterator(it);
   }
 
@@ -139,7 +139,7 @@ public:
 
   // max_size
   size_type max_size() const {
-			return std::numeric_limits<difference_type>::max() / (sizeof(T));
+			return std::numeric_limits<difference_type>::max() / (sizeof(node_type) + sizeof(value_type));
   }
 
   // operator[]
@@ -225,10 +225,14 @@ public:
     node_pointer node = _tree.search_node(_tree._root, p);
     if (node == NULL)
       return end();
-    return iterator(node);
+    return iterator(node, &_tree);
   }
   const_iterator find(const key_type &k) const {
-    return const_iterator(find(k));
+    value_type p = ft::make_pair<const key_type, mapped_type>(k, mapped_type());
+    node_pointer node = _tree.search_node(_tree._root, p);
+    if (node == NULL)
+      return end();
+    return const_iterator(node, &_tree);
   }
 
   // count
@@ -253,26 +257,26 @@ public:
 
   // upper_bound
   iterator upper_bound(const key_type &k) {
-    iterator it(_tree.last());
-    while (it != end() && _comp(it->first, k))
-      it--;
+    iterator it = lower_bound(k);
+    if (it != end())
+      it++;
     return it; // technically it's not end(), but it's the same it terms of the pointer value 
   }
   const_iterator upper_bound(const key_type &k) const {
-    const_iterator it(_tree.last());
-    while (it != end() && _comp(it->first, k))
-      it--;
-    return it;
+    const_iterator it = lower_bound(k);
+    if (it != end())
+      it++;
+    return it; // technically it's not end(), but it's the same it terms of the pointer value 
   }
 
   // equal_range
   ft::pair<const_iterator, const_iterator> equal_range(const key_type &k) const {
-    iterator it = begin();
+    const_iterator it = begin();
     const_iterator r1, r2;
-    while (_comp(it->first, k))
+    while (it != end() && _comp(it->first, k))
       it++;
     if (it == end())
-      return ft::make_pair(const_iterator(NULL), const_iterator(NULL));
+      return ft::make_pair(const_iterator(NULL, &_tree), const_iterator(NULL, &_tree));
     r1 = it;
     r2 = ++it;
     return ft::make_pair(r1, r2);
@@ -280,15 +284,62 @@ public:
   ft::pair<iterator, iterator> equal_range(const key_type &k) {
     iterator it = begin();
     iterator r1, r2;
-    while (_comp(it->first, k))
+    while (it != end() && _comp(it->first, k))
       it++;
     if (it == end())
-      return ft::make_pair(iterator(NULL), iterator(NULL));
+      return ft::make_pair(iterator(NULL, &_tree), iterator(NULL, &_tree));
     r1 = it;
     r2 = ++it;
     return ft::make_pair(r1, r2);
   }
 };
-} // namespace ft
+  // operators
+  template <class T, class Alloc>
+  bool operator==(const map<T,Alloc>& lhs, const map<T,Alloc>& rhs)
+  {
+    if (lhs.size() != rhs.size())
+      return false;
+    typename map<T,Alloc>::const_iterator it1 = lhs.begin();
+    typename map<T,Alloc>::const_iterator it2 = rhs.begin();
+    while (it1 != lhs.end() && it2 != rhs.end())
+    {
+      if (*it1 != *it2)
+        return false;
+      it1++;
+      it2++;
+    }
+    return (it1 == lhs.end() && it2 == rhs.end());
+  }
+  template <class T, class Alloc>
+  bool operator!=(const map<T,Alloc>& lhs, const map<T,Alloc>& rhs)
+  {
+    return !(lhs == rhs);
+  }
+  template <class T, class Alloc>
+  bool operator<(const map<T,Alloc>& lhs, const map<T,Alloc>& rhs)
+  {
+    return ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+  }
+  template <class T, class Alloc>
+  bool operator<= (const map<T,Alloc>& lhs, const map<T,Alloc>& rhs)
+  {
+    return !(rhs < lhs);
+  }
+  template <class T, class Alloc>
+  bool operator> (const map<T,Alloc>& lhs, const map<T,Alloc>& rhs)
+  {
+    return rhs < lhs;
+  }
+  template <class T, class Alloc>
+  bool operator>= (const map<T,Alloc>& lhs, const map<T,Alloc>& rhs)
+  {
+    return !(lhs < rhs);
+  }
+  template <class T, class Alloc>
+  void swap (map<T,Alloc>& x, map<T,Alloc>& y)
+  {
+    x.swap(y);
+  }
+  } // namespace ft
 
 #endif // MAP_HPP
