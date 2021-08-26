@@ -1,6 +1,6 @@
 #ifndef BTREE_HPP
 
-#include <iostream>
+#include "utils.hpp"
 #include <stdlib.h>
 
 namespace ft {
@@ -98,20 +98,12 @@ public:
     NodePointer _n;
     TreePointer _tree;
 
-    typedef std::bidirectional_iterator_tag iterator_category;
+    typedef ft::bidirectional_iterator_tag iterator_category;
 
     template<class U, class V>
 		bool operator==(_BtreeIteratorBase<U, V> other) const {return _n == other._n;}
     template<class U, class V>
 		bool operator!=(_BtreeIteratorBase<U, V> other) const {return _n != other._n;}
-    /* template<class U, class V> */
-		/* bool operator<(_BtreeIteratorBase<U, V> other) const {return _n < other._n;} */
-		/*     template<class U, class V> */
-		/* bool operator>(_BtreeIteratorBase<U, V> other) const {return _n > other._n;} */
-		/*     template<class U, class V> */
-		/* bool operator<=(_BtreeIteratorBase<U, V> other) const {return _n <= other._n;} */
-		/*     template<class U, class V> */
-		/* bool operator>=(_BtreeIteratorBase<U, V> other) const {return _n >= other._n;} */
     virtual ~_BtreeIteratorBase() {}
   };
 
@@ -157,7 +149,7 @@ public:
     typedef const T value_type;
     typedef const T *pointer;
     typedef const T &reference;
-    typedef std::bidirectional_iterator_tag iterator_category;
+    typedef ft::bidirectional_iterator_tag iterator_category;
 
     _ConstBtreeIterator() { this->_n = NULL; this->_tree = NULL; }
     _ConstBtreeIterator(const _node *p, const btree* tree) { this->_n = p; this->_tree = const_cast<const btree*>(tree);}

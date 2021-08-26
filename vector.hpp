@@ -48,7 +48,7 @@ namespace ft
 		typedef T					          value_type;
 		typedef Pointer             pointer;
 		typedef Reference		        reference;
-    typedef std::random_access_iterator_tag iterator_category; 
+    typedef ft::random_access_iterator_tag iterator_category; 
 		
 		explicit _VectorIterator(){this->_el = NULL;}
 		explicit _VectorIterator(const pointer p){this->_el = p;}
@@ -79,7 +79,7 @@ namespace ft
 		typedef T					          value_type;
 		typedef Pointer             pointer;
 		typedef Reference		        reference;
-    typedef std::random_access_iterator_tag iterator_category;
+    typedef ft::random_access_iterator_tag iterator_category;
 	
 		explicit _ConstVectorIterator(){this->_el = NULL;}
 		explicit _ConstVectorIterator(pointer p){this->_el = p;}

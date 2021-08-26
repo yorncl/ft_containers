@@ -1,7 +1,6 @@
 #if !defined(UTILS_HPP)
 #define UTILS_HPP
 
-#include <iostream>
 #include <iterator>
 #include <cstring>
 #include <unistd.h>
@@ -46,11 +45,11 @@ namespace ft
   
   //Iterator traits
 
-  /* struct input_iterator {}; */
-  /* struct output_iterator_tag {}; */
-  /* struct forward_iterator_tag {}; */
-  /* struct bidirectional_iterator_tag {}; */
-  /* struct random_access_iterator_tag {}; */
+  struct input_iterator {};
+  struct output_iterator_tag {};
+  struct forward_iterator_tag {};
+  struct bidirectional_iterator_tag {};
+  struct random_access_iterator_tag {};
 
   // Base struct
   template <class Iterator>
@@ -71,7 +70,7 @@ namespace ft
     typedef T value_type;
     typedef T* pointer;
     typedef T& reference;
-    typedef std::random_access_iterator_tag iterator_category;
+    typedef ft::random_access_iterator_tag iterator_category;
   };
 
   //Specialization for const T*
@@ -82,7 +81,7 @@ namespace ft
     typedef T value_type;
     typedef const T* pointer;
     typedef const T& reference;
-    typedef std::random_access_iterator_tag iterator_category;
+    typedef ft::random_access_iterator_tag iterator_category;
   };
 
 	#define REQUIRE_ITER(T) typename ft::enable_if< !ft::is_integral<T>::value, T>::type * = NULL
