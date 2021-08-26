@@ -110,24 +110,18 @@ public:
 
   // rbegin
   reverse_iterator rbegin() {
-    iterator it = iterator(_tree.last(), &_tree);
-    return reverse_iterator(it);
+    return reverse_iterator(end());
   }
   const_reverse_iterator rbegin() const {
-    const_iterator it = const_iterator(_tree.last(), &_tree);
-    return const_reverse_iterator(it);
+    return const_reverse_iterator(end());
   }
 
   // rend
   reverse_iterator rend() {
-    iterator it = begin();
-    it--;
-    return reverse_iterator(it);
+    return reverse_iterator(begin());
   }
   const_reverse_iterator rend() const {
-    const_iterator it = begin();
-    it--;
-    return const_reverse_iterator(it);
+    return const_reverse_iterator(begin());
   }
 
   // empty

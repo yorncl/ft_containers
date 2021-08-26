@@ -17,43 +17,45 @@ namespace ft
 		Iter _it;
 		
 		reverse_iterator(){} reverse_iterator(const _Self &it){_it = it._it;}
-		reverse_iterator(const Iter &it){_it = it;}
+		reverse_iterator(const Iter &it){_it = it; _it--;}
     template<class U>
 		reverse_iterator(const reverse_iterator<U> &it){_it = it._it;}
     template<class U>
-		reverse_iterator(const U &it){_it = it;}
+		reverse_iterator(const U &it){_it = it; _it--;}
 		_Self& operator--() {_it.operator++(); return *this;}
 		_Self& operator++() {_it.operator--(); return *this;}
 		_Self operator--(int) {_Self tmp = *this; _it.operator++(0); return tmp;}
 		_Self operator++(int) {_Self tmp = *this; _it.operator--(0); return tmp;}
-		_Self operator+(difference_type a) const { return _Self(_it.operator-(a)); }
-		_Self operator-(difference_type a) const { return _Self(_it.operator+(a)); }
+		_Self operator+(difference_type a) const { return _Self(base() - a); }
+		_Self operator-(difference_type a) const { return _Self(base() + a); }
 		_Self& operator+=(difference_type x) {_it.operator-=(x); return *this;}
 		_Self& operator-=(difference_type x) {_it.operator+=(x); return *this;}
 		difference_type operator-(_Self it) const { return it._it.operator-(_it); }
     template<class U>
-		bool operator==(const reverse_iterator<U> other) const {return _it.operator==(other._it);}
+		bool operator==(const reverse_iterator<U> other) const {return base().operator==(other.base());}
     template<class U>
-		bool operator!=(const reverse_iterator<U> other) const {return _it.operator!=(other._it);}
+		bool operator!=(const reverse_iterator<U> other) const {return base().operator!=(other.base());}
     template<class U>
-		bool operator<(const reverse_iterator<U> other) const {return _it.operator<(other._it);}
+		bool operator<(const reverse_iterator<U> other) const {return base().operator>(other.base());}
     template<class U>
-		bool operator>(const reverse_iterator<U> other) const {return _it.operator>(other._it);}
+		bool operator>(const reverse_iterator<U> other) const {return base().operator<(other.base());}
     template<class U>
-    bool operator<=(const reverse_iterator<U> other) const {return _it.operator<=(other._it);}
+    bool operator<=(const reverse_iterator<U> other) const {return base().operator>=(other.base());}
     template<class U>
-    bool operator>=(const reverse_iterator<U> other) const {return _it.operator>=(other._it);}
+    bool operator>=(const reverse_iterator<U> other) const {return base().operator<=(other.base());}
 		_Self& operator=(const _Self& other) {_it.operator=(other._it); return *this;}
-		reference operator*() const {return (Iter(_it)).operator*();}
-		pointer operator->() const {return &this->operator*();}
-		reference operator[] (int i) { return _it[-i]; }
+		reference operator*() const { return _it.operator*();}
+		pointer operator->() const { return &this->operator*();}
+		reference operator[] (int i) { return _it[- i]; }
 		~reverse_iterator(){}
 
-    Iter base() { return Iter(_it); };
+    Iter base() const { return ++Iter(_it); };
 	};
 
 template<class T>
 ft::reverse_iterator<T>operator+(int a, ft::reverse_iterator<T>& it) { return it.operator+(a); }
+template<class T>
+ft::reverse_iterator<T>operator-(ft::reverse_iterator<T>& it1, ft::reverse_iterator<T>& it2) { return it1.operator-(it2); }
 
 }
 #endif // FT_REVERSE_ITERATOR_HPP

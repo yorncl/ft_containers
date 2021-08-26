@@ -291,21 +291,21 @@ namespace ft
 		// rbegin
 		reverse_iterator rbegin()
 		{
-			return reverse_iterator(iterator(&_storage.data[_storage.size - 1]));
+			return reverse_iterator(end());
 		}
 		const_reverse_iterator rbegin() const
 		{
-			return const_reverse_iterator(const_iterator(&_storage.data[_storage.size - 1]));
+			return const_reverse_iterator(end());
 		}
 
 		// rend
 		reverse_iterator rend()
 		{
-			return reverse_iterator(iterator(_storage.data - 1));
+			return reverse_iterator(iterator(_storage.data));
 		}
 		const_reverse_iterator rend() const
 		{
-			return const_reverse_iterator(const_iterator(_storage.data - 1));
+			return const_reverse_iterator(const_iterator(_storage.data));
 		}
 
 		// size
