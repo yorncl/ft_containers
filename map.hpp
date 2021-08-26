@@ -132,7 +132,8 @@ public:
 
   // max_size
   size_type max_size() const {
-			return std::numeric_limits<difference_type>::max() / (sizeof(node_type) + sizeof(value_type));
+      size_type tmp = sizeof(node_type) + sizeof(value_type);
+			return std::numeric_limits<difference_type>::max() / (tmp + (tmp % 8 ? 8 - tmp % 8 : 0));
   }
 
   // operator[]
