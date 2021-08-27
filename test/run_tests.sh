@@ -54,6 +54,11 @@ function launch_tests
 {
     echo "Launching tests"
     testdirs=""
+    if [[ $1 == "others" ]]
+    then
+      ./tests/others/src/test.sh
+      return
+    fi
     if [[ $# == 1 && -d  tests/$1 ]]
     then
 	testdirs=tests/$1
