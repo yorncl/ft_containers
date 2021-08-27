@@ -284,6 +284,8 @@ public:
   template <class T, class Alloc>
   bool operator==(const map<T,Alloc>& lhs, const map<T,Alloc>& rhs)
   {
+    if (lhs.size() != rhs.size())
+      return false;
 		return ft::equal(lhs.begin(), lhs.end(), rhs.begin());
   }
   template <class T, class Alloc>

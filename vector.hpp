@@ -19,11 +19,10 @@ namespace ft
   class _VectorIteratorBase
   {
 
-    protected:
+    public:
     typedef _VectorIteratorBase<Pointer> _Self;
     Pointer _el;
 
-    public:
     template<class U>
 		bool operator==(_VectorIteratorBase<U> other) const {return _el == other._el;}
     template<class U>
@@ -75,8 +74,7 @@ namespace ft
 	template < class T, class Distance, class Pointer, class Reference >
   class _ConstVectorIterator : public _VectorIteratorBase<Pointer>
 	{	
-		public:
-		typedef _ConstVectorIterator<T, Distance, Pointer, Reference>	_Self;
+		public: typedef _ConstVectorIterator<T, Distance, Pointer, Reference>	_Self;
 		typedef Distance		        difference_type;
 		typedef T					          value_type;
 		typedef Pointer             pointer;
@@ -551,6 +549,8 @@ namespace ft
 	template <class T, class Alloc>
 	bool operator==(const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
 	{
+    if (lhs.size() != rhs.size())
+      return false;
 		return ft::equal(lhs.begin(), lhs.end(), rhs.begin());
 	}
 	template <class T, class Alloc>
