@@ -63,7 +63,7 @@ function launch_tests
     for dir in $testdirs
     do
       echo $dir
-      if [[ $dir == "tests/others" ]]
+      if [[ $(basename $dir) == "others" ]]
       then
         continue
       fi

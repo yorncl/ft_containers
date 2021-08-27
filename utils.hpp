@@ -95,6 +95,11 @@ namespace ft
       first = T1();
       second = T2();
     }
+    pair(pair& p)
+    {
+      first = p.first;
+      second = p.second;
+    }
     pair(T1 f, T2 s) : first(f), second(s)
     {
     }
@@ -149,15 +154,27 @@ namespace ft
   template <class InputIterator1, class InputIterator2>
   bool lexicographical_compare (InputIterator1 first1, InputIterator1 last1,
                                 InputIterator2 first2, InputIterator2 last2)
-{
-  while (first1!=last1)
   {
-    if (first2==last2 || *first2<*first1) return false;
-    else if (*first1<*first2) return true;
-    ++first1; ++first2;
+    while (first1!=last1)
+    {
+      if (first2==last2 || *first2<*first1) return false;
+      else if (*first1<*first2) return true;
+      ++first1; ++first2;
+    }
+    return (first2!=last2);
   }
-  return (first2!=last2);
-}
+
+  template<class InputIt1, class InputIt2>
+  bool equal(InputIt1 first1, InputIt1 last1, 
+             InputIt2 first2)
+  {
+      for (; first1 != last1; ++first1, ++first2) {
+          if (!(*first1 == *first2)) {
+              return false;
+          }
+      }
+      return true;
+  }
 
   template < class InputIterator >
   size_t itlen(InputIterator first, InputIterator last, REQUIRE_ITER(InputIterator))
