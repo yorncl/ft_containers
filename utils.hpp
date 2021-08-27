@@ -95,10 +95,8 @@ namespace ft
       first = T1();
       second = T2();
     }
-    pair(pair& p)
+    pair(const pair<T1, T2>& p) : first(p.first), second(p.second)
     {
-      first = p.first;
-      second = p.second;
     }
     pair(T1 f, T2 s) : first(f), second(s)
     {
