@@ -46,9 +46,12 @@ public:
     }
   };
 
+  protected:
   typedef ft::btree<value_type, value_compare> tree_type;
   typedef typename tree_type::_node *node_pointer;
   typedef typename tree_type::_node node_type;
+  
+  public:
   typedef typename tree_type::_BtreeIterator iterator;
   typedef typename tree_type::_ConstBtreeIterator const_iterator;
   typedef ft::reverse_iterator<iterator> reverse_iterator;
@@ -56,11 +59,13 @@ public:
   typedef std::ptrdiff_t difference_type;
   typedef unsigned long size_type;
 
+  protected:
   key_compare _comp;
   allocator_type _alloc;
 
   tree_type _tree;
 
+  public:
   // constructor
   map(const key_compare &comp = key_compare(),
                const allocator_type &alloc = allocator_type()) {
@@ -279,18 +284,7 @@ public:
   template <class T, class Alloc>
   bool operator==(const map<T,Alloc>& lhs, const map<T,Alloc>& rhs)
   {
-    if (lhs.size() != rhs.size())
-      return false;
-    typename map<T,Alloc>::const_iterator it1 = lhs.begin();
-    typename map<T,Alloc>::const_iterator it2 = rhs.begin();
-    while (it1 != lhs.end() && it2 != rhs.end())
-    {
-      if (*it1 != *it2)
-        return false;
-      it1++;
-      it2++;
-    }
-    return (it1 == lhs.end() && it2 == rhs.end());
+		return ft::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
   }
   template <class T, class Alloc>
   bool operator!=(const map<T,Alloc>& lhs, const map<T,Alloc>& rhs)
@@ -322,6 +316,6 @@ public:
   {
     x.swap(y);
   }
-  } // namespace ft
+} // namespace ft
 
 #endif // MAP_HPP

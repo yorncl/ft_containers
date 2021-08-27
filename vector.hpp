@@ -19,10 +19,11 @@ namespace ft
   class _VectorIteratorBase
   {
 
-    public:
+    protected:
     typedef _VectorIteratorBase<Pointer> _Self;
     Pointer _el;
 
+    public:
     template<class U>
 		bool operator==(_VectorIteratorBase<U> other) const {return _el == other._el;}
     template<class U>
@@ -120,6 +121,9 @@ namespace ft
 		typedef typename std::ptrdiff_t difference_type;
 		typedef size_t size_type;
 
+
+		private:
+
 		typedef struct s_data_block
 		{
 			size_t size;
@@ -129,9 +133,6 @@ namespace ft
 
 		allocator_type arr_alloc;
 		_Block _storage;
-
-
-		private:
 
 		pointer blockAllocation(size_t capacity)
 		{
@@ -550,18 +551,7 @@ namespace ft
 	template <class T, class Alloc>
 	bool operator==(const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
 	{
-		if (lhs.size() != rhs.size())
-			return false;
-		typename vector<T,Alloc>::const_iterator it1 = lhs.begin();
-		typename vector<T,Alloc>::const_iterator it2 = rhs.begin();
-		while (it1 != lhs.end() && it2 != rhs.end())
-		{
-			if (*it1 != *it2)
-				return false;
-			it1++;
-			it2++;
-		}
-		return (it1 == lhs.end() && it2 == rhs.end());
+		return ft::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
 	}
 	template <class T, class Alloc>
 	bool operator!=(const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
