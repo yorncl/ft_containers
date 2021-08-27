@@ -466,7 +466,7 @@ namespace ft
 		// insert
 		iterator insert (iterator position, const value_type& val)
 		{
-      size_t offset = position._el - _storage.data;
+      size_t offset = position - begin();
       insert(position, 1, val);
       return iterator(&_storage.data[offset]);
 		}
@@ -551,7 +551,7 @@ namespace ft
 	template <class T, class Alloc>
 	bool operator==(const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
 	{
-		return ft::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+		return ft::equal(lhs.begin(), lhs.end(), rhs.begin());
 	}
 	template <class T, class Alloc>
 	bool operator!=(const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
