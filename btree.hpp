@@ -16,20 +16,20 @@ public:
   allocator_type _alloc;
 
   static pointer copy_data(reference src, allocator_type &alloc) {
-    pointer data = alloc.allocate(sizeof(T));
+    pointer data = alloc.allocate(1);
     alloc.construct(data, src);
     return data;
   }
 
   static pointer create_data(reference src, allocator_type &alloc) {
-    pointer data = alloc.allocate(sizeof(T));
+    pointer data = alloc.allocate(1);
     alloc.construct(data, src);
     return data;
   }
 
   static void destroy_data(pointer data, allocator_type &alloc) {
     alloc.destroy(data);
-    alloc.deallocate(data, sizeof(T));
+    alloc.deallocate(data, 1);
   }
 
   typedef struct s_node {

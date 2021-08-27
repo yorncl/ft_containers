@@ -5,6 +5,7 @@
 #include <exception>
 #include <stdexcept>
 
+#include <iostream>
 #include "utils.hpp"
 #include "reverse_iterator.hpp"
 
@@ -134,7 +135,7 @@ namespace ft
 
 		pointer blockAllocation(size_t capacity)
 		{
-			pointer ptr = arr_alloc.allocate(capacity * sizeof(T));
+			pointer ptr = arr_alloc.allocate(capacity);
 			for (size_t i = 0; i < capacity; i++)
 				arr_alloc.construct(&ptr[i], T());
 			return ptr;
@@ -196,7 +197,7 @@ namespace ft
 		{
 			for (size_t i = 0; i < b.size; i++)
 				arr_alloc.destroy(&_storage.data[i]);
-			arr_alloc.deallocate(b.data, b.capacity * sizeof(T));
+			arr_alloc.deallocate(b.data, b.capacity);
 			b.size = 0;
 			b.capacity = 0;
 		}
